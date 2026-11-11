@@ -53,29 +53,13 @@ export default function PreviousPapersPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300 pb-16">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1 font-mono">
-            <FileText className="w-3.5 h-3.5" />
-            <span>ANITS Autonomous University Question Papers Archive</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-            ANITS R23 Previous Examination Papers
-          </h1>
-          <p className="text-xs md:text-sm text-neutral-500 dark:text-neutral-400 mt-1 max-w-2xl">
-            Official question papers for III/IV B.Tech CSE (Semester I) Software Engineering. Featuring official exam dates, R23 regulation, marks schemes, and original paper scans.
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Link
-            href="/student/exam-prep"
-            className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-xs font-bold transition shadow-xs flex items-center space-x-1.5"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>79 Verified Q&A Solutions</span>
-          </Link>
-        </div>
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+          ANITS R23 Previous Examination Papers
+        </h1>
+        <p className="text-xs md:text-sm text-neutral-500 dark:text-neutral-400 mt-1 max-w-2xl">
+          Official question papers for III/IV B.Tech CSE (Semester I) Software Engineering. Featuring official exam dates, R23 regulation, marks schemes, and original paper scans.
+        </p>
       </div>
 
       {/* Regulation & Examination Filter Pills */}

@@ -41,30 +41,15 @@ export default function DiagramGalleryPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300 pb-16">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span>Academic UML Architecture Archive</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            16 Software Engineering Reference Architectures
-          </h1>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-            Complete collection of Unit-IV UML behavioral and structural
-            diagrams across 4 real-world systems. Inspect, download, or launch
-            directly into the drawing studio as editable diagrams.
-          </p>
-        </div>
-
-        {/* Quick Launch Studio CTA */}
-        <button
-          onClick={() => router.push("/student/diagrams/studio")}
-          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/30 transition"
-        >
-          <PenTool className="w-4 h-4" />
-          <span>Blank Drawing Canvas</span>
-        </button>
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          16 Software Engineering Reference Architectures
+        </h1>
+        <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
+          Complete collection of Unit-IV UML behavioral and structural
+          diagrams across 4 real-world systems. Inspect, download, or launch
+          directly into the drawing studio as editable diagrams.
+        </p>
       </div>
 
       {/* Filter Toolbar */}

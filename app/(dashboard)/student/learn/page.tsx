@@ -29,10 +29,6 @@ function LearnIndexView() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Academic Theory & Concept Explanations</span>
-          </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Software Engineering Knowledge Base
           </h1>

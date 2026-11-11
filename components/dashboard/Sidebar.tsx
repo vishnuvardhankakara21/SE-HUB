@@ -237,34 +237,6 @@ export function Sidebar({
           )}
         </div>
 
-        {/* WORKSPACE STATUS INDICATOR */}
-        <div className="p-3 border-b border-neutral-200/70 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-neutral-900/40">
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 px-1">
-            <span>Academic Portal</span>
-            <span className="font-mono text-neutral-500">CS-304</span>
-          </div>
-          <div
-            className={cn(
-              "mt-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center space-x-2 shadow-xs",
-              isTeacherRoute
-                ? "bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-300"
-                : "bg-neutral-100 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200"
-            )}
-          >
-            {isTeacherRoute ? (
-              <>
-                <FileCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span className="truncate">Faculty Studio Active</span>
-              </>
-            ) : (
-              <>
-                <GraduationCap className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-300 shrink-0" />
-                <span className="truncate">Student Workspace</span>
-              </>
-            )}
-          </div>
-        </div>
-
         {/* Navigation */}
         <div className="p-3 space-y-4 overflow-y-auto flex-1">
           {/* STUDENT WORKSPACE */}

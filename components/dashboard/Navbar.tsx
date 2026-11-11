@@ -155,23 +155,6 @@ export function Navbar({
         </div>
       </div>
 
-      {/* Center: Active Identity Badge */}
-      <div className="hidden sm:flex items-center">
-        {isTeacherRoute ? (
-          <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-semibold">
-            <FileCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-            <span>Faculty Studio Active</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse ml-0.5" />
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold">
-            <GraduationCap className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400" />
-            <span>Student Academic Hub</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ml-0.5" />
-          </div>
-        )}
-      </div>
-
       {/* Right: Engagement & Controls */}
       <div className="flex items-center space-x-2 sm:space-x-3">
         {!isTeacherRoute && (
@@ -191,15 +174,6 @@ export function Navbar({
               <Award className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400" />
               <span className="font-mono">{stats.xp} XP</span>
             </div>
-
-            {/* Studio Button */}
-            <Link
-              href="/student/diagrams/studio"
-              className="hidden md:flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-medium shadow-xs transition"
-            >
-              <PenTool className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
-              <span>Studio</span>
-            </Link>
           </>
         )}
 

@@ -93,30 +93,14 @@ export default function StudentDashboardPage() {
             Your college syllabus-aligned Software Engineering workspace. Master all 5 units, review verbatim 6-mark examination model answers, and architect UML diagrams in the embedded diagrams.net studio.
           </p>
 
-          {/* Quick Action Navigation Pills */}
-          <div className="pt-2 flex flex-wrap gap-2.5">
+          {/* Quick Action Navigation */}
+          <div className="pt-2">
             <Link
               href="/student/exam-prep"
               className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-white text-neutral-950 hover:bg-neutral-100 text-xs font-bold shadow-md transition-all hover:scale-[1.02]"
             >
               <GraduationCap className="w-4 h-4" />
               <span>Study 79 Exam Q&As</span>
-            </Link>
-
-            <Link
-              href="/student/diagrams/studio"
-              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-100 text-xs font-semibold border border-neutral-700 transition"
-            >
-              <PenTool className="w-4 h-4 text-emerald-400" />
-              <span>Open Drawing Studio</span>
-            </Link>
-
-            <Link
-              href="/student/diagrams"
-              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 text-neutral-300 text-xs font-medium border border-neutral-700/80 transition"
-            >
-              <ImageIcon className="w-4 h-4 text-amber-400" />
-              <span>16 Reference Diagrams</span>
             </Link>
           </div>
         </div>

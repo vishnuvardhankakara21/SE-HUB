@@ -85,12 +85,8 @@ function ExamPrepView() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300 pb-16">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">
-            <GraduationCap className="w-3.5 h-3.5" />
-            <span>Semester Examination Preparation</span>
-          </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
             Unit-Wise 6-Mark Important Questions & Model Answers
           </h1>

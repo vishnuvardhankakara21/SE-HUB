@@ -86,10 +86,6 @@ function QuizView() {
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300 pb-16">
       {/* Header */}
       <div>
-        <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Self-Assessment Engine</span>
-        </div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           Unit-Wise Software Engineering Quizzes & MCQs
         </h1>

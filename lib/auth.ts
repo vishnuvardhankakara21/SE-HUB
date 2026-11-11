@@ -133,7 +133,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "se_learning_platform_super_secret_key_change_in_production_2026",
   pages: {
     signIn: "/login",
     error: "/login",

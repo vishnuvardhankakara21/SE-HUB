@@ -29,7 +29,66 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 0. Check Free LLM Integration (Google Gemini / Groq Llama)
+    const qLower = query.toLowerCase().trim();
+    const words = qLower.split(/\s+/).filter((w) => w.length > 2);
+
+    // Fast-path: If student asked an exact question from the verified 79-question exam bank
+    // Return the curated syllabus model answer instantly (<20ms)
+    let directExamMatch = null;
+    for (const q of EXAM_QUESTIONS) {
+      const qText = q.question.toLowerCase().trim();
+      if (qText === qLower || (qLower.length > 18 && qText.includes(qLower))) {
+        directExamMatch = q;
+        break;
+      }
+    }
+
+    if (directExamMatch) {
+      const structured: StructuredDoubtData = {
+        title: directExamMatch.question,
+        unitNumber: directExamMatch.unitNumber,
+        marks: `${directExamMatch.marks} Marks Standard`,
+        markingScheme: directExamMatch.markingScheme,
+        definition: `Unit ${directExamMatch.unitNumber} core curriculum question evaluated according to official university examination standards.`,
+        keyPoints: [
+          {
+            title: "Phase Structure",
+            description: "Follow the sequence defined in the syllabus with formal state transitions and milestones.",
+          },
+          {
+            title: "Architectural Mapping",
+            description: "Include a labeled structural diagram or flowchart to secure maximum design marks.",
+          },
+          {
+            title: "Engineering Metric",
+            description: "Provide quantitative metrics (e.g. cyclomatic complexity, effort equation, or coupling index).",
+          },
+        ],
+        fullModelAnswer: directExamMatch.answerMarkdown,
+        diagramRecommendation: directExamMatch.unitNumber === 1 
+          ? "Draw Spiral Model 4-Quadrant Radial Diagram or Waterfall Linear Stages"
+          : directExamMatch.unitNumber === 2
+          ? "Draw Level-0 Context DFD and Level-1 Functional Decomposition"
+          : directExamMatch.unitNumber === 3
+          ? "Draw 4+1 View Architecture & Kruchten's Use-Case Centric Matrix"
+          : directExamMatch.unitNumber === 4
+          ? "Draw Control Flow Graph (CFG) with Cyclomatic Complexity Regions"
+          : "Draw Basic COCOMO Estimation Flow & Maintenance Curve",
+        examTip: directExamMatch.examTips || "Write definitions first, provide standard diagrams with labeled arrows, and state pros/cons clearly for full marks.",
+        source: "exam_bank",
+      };
+
+      return NextResponse.json({
+        success: true,
+        orbSummary: `Instant syllabus match for Unit ${directExamMatch.unitNumber}: ${directExamMatch.question.slice(0, 60)}...`,
+        structured,
+        source: structured.source,
+        unitNumber: structured.unitNumber,
+        provider: "exam_bank",
+      });
+    }
+
+    // 0. Query Live Ultra-Fast AI (Google Gemini Flash Lite / 3.8 Flash / Groq)
     const liveLLMResponse = await queryFreeLLM(query, userApiKey, providerPreference);
     if (liveLLMResponse) {
       const structured: StructuredDoubtData = {
@@ -56,9 +115,6 @@ export async function POST(req: NextRequest) {
         provider: liveLLMResponse.provider,
       });
     }
-
-    const qLower = query.toLowerCase().trim();
-    const words = qLower.split(/\s+/).filter((w) => w.length > 2);
 
     // 1. Search in 79 University Exam Questions
     let bestQuestion = null;

@@ -16,6 +16,20 @@ export interface AIResponseData {
 const SYSTEM_ACADEMIC_PROMPT = `You are a Senior University Professor of Software Engineering for B.Tech CSE (ANITS Autonomous / JNTU R23 Regulation).
 Your task is to provide an exact, university-standard examination solution for the student's question. Generate open-ended, comprehensive, and technically rigorous explanations.
 
+MATHEMATICAL & FORMULA NOTATION RULES (CRITICAL):
+- NEVER use LaTeX math syntax or dollar signs ($...$ or $$...$$). Students find raw LaTeX confusing.
+- NEVER use TeX macros like \\times, \\frac, \\cdot, \\leq, \\geq, or curly brace subscripts.
+- ALWAYS write formulas in clean, student-friendly, standard engineering notation using clean characters (e.g. ×, ÷, ², ³, ±, √).
+  Standard University Exam Examples:
+  * Effort (E) = a × (KLOC)^b  [Person-Months]
+  * Development Time (TDEV) = c × (Effort)^d  [Months]
+  * Average Staffing (SS) = Effort / TDEV  [Persons]
+  * Cyclomatic Complexity: V(G) = E - N + 2P  (or V(G) = P + 1)
+  * Defect Removal Efficiency (DRE) = E / (E + D)
+  * Unadjusted Function Points (UFP) = Sum of (Element Count × Weight Factor)
+  * Function Points (FP) = UFP × [0.65 + 0.01 × Sum(Fi)]
+- Always define every variable immediately below the formula with clear units.
+
 You MUST respond strictly with a valid JSON object (no markdown code fence, no additional commentary) matching this exact JSON schema:
 {
   "title": "Concise Question Title",
@@ -31,7 +45,7 @@ You MUST respond strictly with a valid JSON object (no markdown code fence, no a
   "fullModelAnswer": "Comprehensive step-by-step markdown answer. Include clear ## and ### section headers, formatted bullet points, comparison tables, and formal engineering explanations.",
   "diagramRecommendation": "Specific architectural figure or UML diagram to draw for maximum examination marks (e.g., 'Draw Level-1 Functional DFD' or 'Draw 4-Quadrant Spiral Model Radial Chart').",
   "diagramType": "block", // "block" | "uml" | "flowchart" | "architecture"
-  "diagramAscii": "CRITICAL: A meticulously formatted, aligned ASCII block diagram or architecture flow. Keep column widths consistent and ensure arrows (---->, <----, |, v, ^) align cleanly. Example:\n+--------------------+         +--------------------+\n|   Client / Web UI  | ------> |  API Gateway (SE)  |\n+--------------------+         +--------------------+\n                                         |\n                                         v\n                               +--------------------+\n                               | Database / Storage |\n                               +--------------------+",
+  "diagramAscii": "CRITICAL: A clean, aligned ASCII block diagram or architecture flow with neat boxes (+---+ and |) and arrows (---->, v).",
   "examTip": "Faculty examiner evaluation tip highlighting what evaluators look for to award full 6/6 marks."
 }`;
 
@@ -52,8 +66,8 @@ export async function queryFreeLLM(
 
   // 1. Primary: Google Gemini API (Free Tier from Google AI Studio)
   if (geminiKey && (providerPreference === "gemini" || !providerPreference || !groqKey)) {
-    // Primary model for Google AI Studio
-    const models = ["gemini-flash-latest"];
+    // Ordered by response speed: ultra-fast flash-lite first, then standard flash
+    const models = ["gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-flash-latest"];
 
     for (const model of models) {
       try {
@@ -63,23 +77,29 @@ export async function queryFreeLLM(
             {
               parts: [
                 {
-                  text: `${SYSTEM_ACADEMIC_PROMPT}\n\nStudent Question / Query: "${query}"\n\nGenerate a complete, open-ended, and structured university model answer with a clean aligned block diagram:`,
+                  text: `${SYSTEM_ACADEMIC_PROMPT}\n\nStudent Question / Query: "${query}"\n\nGenerate an immediate, comprehensive university model answer with clean Unicode formulas (no raw LaTeX $) and a clean aligned ASCII diagram:`,
                 },
               ],
             },
           ],
           generationConfig: {
-            temperature: 0.25,
-            maxOutputTokens: 8192,
+            temperature: 0.2,
+            maxOutputTokens: 2500,
             responseMimeType: "application/json",
           },
         };
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout to ensure prompt responsiveness
 
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (res.ok) {
           const data = await res.json();

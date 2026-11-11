@@ -15,6 +15,8 @@ import {
   LogOut,
   ArrowRight,
   Menu,
+  PanelLeftClose,
+  PanelLeft,
 } from "lucide-react";
 import { TOPICS_DATA } from "@/lib/data/curriculum";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -24,9 +26,15 @@ import { signOut } from "next-auth/react";
 
 interface NavbarProps {
   onToggleMobileMenu?: () => void;
+  onToggleDesktopSidebar?: () => void;
+  isSidebarOpen?: boolean;
 }
 
-export function Navbar({ onToggleMobileMenu }: NavbarProps) {
+export function Navbar({
+  onToggleMobileMenu,
+  onToggleDesktopSidebar,
+  isSidebarOpen = true,
+}: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { role, profile, logout } = useAuth();
@@ -72,17 +80,27 @@ export function Navbar({ onToggleMobileMenu }: NavbarProps) {
 
   return (
     <header className="h-16 border-b border-neutral-200/80 dark:border-neutral-800 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 transition-colors duration-200">
-      {/* Left: Mobile Menu Toggle & Global Search Bar */}
+      {/* Left: Sidebar Toggle (Mobile & Desktop) & Global Search Bar */}
       <div className="flex items-center space-x-2 sm:space-x-3">
-        {onToggleMobileMenu && (
-          <button
-            onClick={onToggleMobileMenu}
-            className="lg:hidden p-2 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-600 dark:text-neutral-300 transition"
-            aria-label="Toggle navigation drawer"
-          >
-            <Menu className="w-4 h-4" />
-          </button>
-        )}
+        <button
+          onClick={() => {
+            if (typeof window !== "undefined" && window.innerWidth < 1024) {
+              onToggleMobileMenu?.();
+            } else {
+              onToggleDesktopSidebar?.();
+            }
+          }}
+          className="p-2 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-600 dark:text-neutral-300 transition flex items-center justify-center shadow-xs group"
+          title={isSidebarOpen ? "Close Sidebar (Ctrl+B)" : "Open Sidebar (Ctrl+B)"}
+          aria-label="Toggle Sidebar"
+        >
+          {isSidebarOpen ? (
+            <PanelLeftClose className="w-4 h-4 hidden lg:block text-neutral-700 dark:text-neutral-300 group-hover:scale-105 transition-transform" />
+          ) : (
+            <PanelLeft className="w-4 h-4 hidden lg:block text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform" />
+          )}
+          <Menu className="w-4 h-4 lg:hidden text-neutral-700 dark:text-neutral-300" />
+        </button>
 
         <div className="relative w-40 sm:w-64 md:w-80">
           <div className="relative flex items-center">

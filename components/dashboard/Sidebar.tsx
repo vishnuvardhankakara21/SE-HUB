@@ -21,6 +21,8 @@ import {
   X,
   Cpu,
   Bell,
+  PanelLeftClose,
+  PanelLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/data/auth-store";
@@ -29,10 +31,18 @@ import { signOut, useSession } from "next-auth/react";
 interface SidebarProps {
   currentRole?: "student" | "teacher";
   onCloseMobile?: () => void;
+  onToggleDesktopSidebar?: () => void;
   isMobile?: boolean;
+  isSidebarOpen?: boolean;
 }
 
-export function Sidebar({ currentRole, onCloseMobile, isMobile }: SidebarProps) {
+export function Sidebar({
+  currentRole,
+  onCloseMobile,
+  onToggleDesktopSidebar,
+  isMobile,
+  isSidebarOpen,
+}: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuth();
@@ -212,6 +222,17 @@ export function Sidebar({ currentRole, onCloseMobile, isMobile }: SidebarProps) 
               aria-label="Close Sidebar"
             >
               <X className="w-5 h-5" />
+            </button>
+          )}
+
+          {!isMobile && onToggleDesktopSidebar && (
+            <button
+              onClick={onToggleDesktopSidebar}
+              className="p-1.5 rounded-xl border border-neutral-200/80 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition shadow-xs"
+              title="Close Sidebar (Ctrl+B)"
+              aria-label="Close Sidebar"
+            >
+              <PanelLeftClose className="w-4 h-4" />
             </button>
           )}
         </div>

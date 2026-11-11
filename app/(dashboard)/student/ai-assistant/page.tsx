@@ -144,7 +144,33 @@ export default function AiAssistantPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Clean Markdown renderer
+  // Clean LaTeX math symbols into crystal-clear human-readable student formulas
+  const cleanMathSymbols = (text: string): string => {
+    return text
+      .replace(/\$\$(.*?)\$\$/g, "$1") // Strip block $$...$$
+      .replace(/\$(.*?)\$/g, "$1") // Strip inline $...$
+      .replace(/\\times/g, "×")
+      .replace(/\\cdot/g, "·")
+      .replace(/\\div/g, "÷")
+      .replace(/\\pm/g, "±")
+      .replace(/\\approx/g, "≈")
+      .replace(/\\neq/g, "≠")
+      .replace(/\\leq/g, "≤")
+      .replace(/\\le(?![a-zA-Z])/g, "≤")
+      .replace(/\\geq/g, "≥")
+      .replace(/\\ge(?![a-zA-Z])/g, "≥")
+      .replace(/\\sum/g, "∑")
+      .replace(/\\sqrt\{([^}]+)\}/g, "√($1)")
+      .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "($1 / $2)")
+      .replace(/\\text\{([^}]+)\}/g, "$1")
+      .replace(/\\mathbf\{([^}]+)\}/g, "$1")
+      .replace(/\\mathit\{([^}]+)\}/g, "$1")
+      .replace(/\\left/g, "")
+      .replace(/\\right/g, "")
+      .replace(/\\_/g, "_");
+  };
+
+  // Clean Markdown & Math renderer
   const renderFormattedMarkdown = (content: string) => {
     const paragraphs = content.split(/\n\n+/);
 
@@ -154,12 +180,82 @@ export default function AiAssistantPage() {
 
       // Header 3 or 2
       if (trimmed.startsWith("###") || trimmed.startsWith("##")) {
-        const title = trimmed.replace(/^#+\s*/, "");
+        const title = cleanMathSymbols(trimmed.replace(/^#+\s*/, ""));
         return (
           <h5 key={pIdx} className="text-sm font-bold text-neutral-900 dark:text-white pt-2 pb-1 border-b border-neutral-100 dark:border-neutral-800">
             {title}
           </h5>
         );
+      }
+
+      // Standalone Equation / Formula Block Detection
+      const isEquationBlock =
+        trimmed.startsWith("$$") ||
+        (trimmed.includes("=") &&
+          (/\b(Effort|TDEV|Tdev|V\(G\)|Cyclomatic|DRE|KLOC|COCOMO|UFP|FP|LOC)\b/i.test(trimmed) ||
+            /^[A-Z]\([A-Za-z]+\)\s*=/.test(trimmed) ||
+            /^[A-Za-z]+\s*=\s*[a-z0-9\(\)]+[\s\*\×\+\-\^]/.test(trimmed)));
+
+      if (isEquationBlock && !trimmed.includes("\n- ") && !trimmed.startsWith("- ")) {
+        const cleanedFormula = cleanMathSymbols(trimmed);
+        return (
+          <div
+            key={pIdx}
+            className="my-3 p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/25 dark:border-amber-500/20 space-y-1.5 shadow-xs"
+          >
+            <div className="flex items-center space-x-1.5 text-[10px] font-bold font-mono uppercase tracking-wider text-amber-700 dark:text-amber-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <span>Standard University Exam Formula</span>
+            </div>
+            <div className="font-mono text-xs sm:text-sm font-bold text-neutral-900 dark:text-amber-200 tracking-wide select-all leading-relaxed whitespace-pre-line">
+              {cleanedFormula}
+            </div>
+          </div>
+        );
+      }
+
+      // Markdown Table Detection
+      if (trimmed.includes("|") && trimmed.includes("-|-") || (trimmed.startsWith("|") && trimmed.endsWith("|"))) {
+        const rows = trimmed.split("\n").filter((r) => r.trim().startsWith("|") && !r.includes("---"));
+        if (rows.length >= 2) {
+          const headerCols = rows[0]
+            .split("|")
+            .filter((c, i, a) => i > 0 && i < a.length - 1)
+            .map((c) => cleanMathSymbols(c.trim()));
+          const bodyRows = rows.slice(1).map((r) =>
+            r
+              .split("|")
+              .filter((c, i, a) => i > 0 && i < a.length - 1)
+              .map((c) => cleanMathSymbols(c.trim()))
+          );
+
+          return (
+            <div key={pIdx} className="overflow-x-auto my-3 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-xs">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-neutral-100 dark:bg-neutral-900 font-bold text-neutral-800 dark:text-neutral-200 border-b border-neutral-200 dark:border-neutral-800">
+                  <tr>
+                    {headerCols.map((h, hIdx) => (
+                      <th key={hIdx} className="p-2.5">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                  {bodyRows.map((cols, rIdx) => (
+                    <tr key={rIdx} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
+                      {cols.map((col, cIdx) => (
+                        <td key={cIdx} className="p-2.5 text-neutral-700 dark:text-neutral-300">
+                          {col}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        }
       }
 
       // Bullet points
@@ -169,7 +265,7 @@ export default function AiAssistantPage() {
           <ul key={pIdx} className="space-y-1.5 my-2 pl-2">
             {lines.map((line, lIdx) => {
               const cleanLine = line.replace(/^[-*]\s*/, "");
-              const formattedLine = cleanLine.replace(/\*\*(.*?)\*\*/g, "$1");
+              const formattedLine = cleanMathSymbols(cleanLine.replace(/\*\*(.*?)\*\*/g, "$1"));
               return (
                 <li key={lIdx} className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 flex items-start space-x-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
@@ -188,15 +284,15 @@ export default function AiAssistantPage() {
           <ol key={pIdx} className="space-y-1.5 my-2 pl-2 list-decimal list-inside text-xs sm:text-sm text-neutral-700 dark:text-neutral-300">
             {lines.map((line, lIdx) => (
               <li key={lIdx} className="leading-relaxed">
-                {line.replace(/^\d+\.\s*/, "").replace(/\*\*(.*?)\*\*/g, "$1")}
+                {cleanMathSymbols(line.replace(/^\d+\.\s*/, "").replace(/\*\*(.*?)\*\*/g, "$1"))}
               </li>
             ))}
           </ol>
         );
       }
 
-      // Standard text with bold cleaning
-      const cleanPara = trimmed.replace(/\*\*(.*?)\*\*/g, "$1");
+      // Standard text with bold cleaning and math symbol cleanup
+      const cleanPara = cleanMathSymbols(trimmed.replace(/\*\*(.*?)\*\*/g, "$1"));
       return (
         <p key={pIdx} className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
           {cleanPara}

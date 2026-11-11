@@ -14,7 +14,7 @@ import {
   Cpu,
   FileCheck,
 } from "lucide-react";
-import Lightfall from "@/components/ui/Lightfall";
+import ShapeGrid from "@/components/ui/ShapeGrid";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
@@ -123,41 +123,28 @@ export default function LandingPage() {
 
       {/* Main Content with Lightfall Canvas Background */}
       <main className="flex-1">
-        {/* Dynamic Lightfall Interactive Hero Section */}
+        {/* Dynamic ShapeGrid Interactive Hero Section */}
         <section className="relative min-h-[660px] md:min-h-[720px] flex items-center justify-center overflow-hidden border-b border-neutral-200/80 dark:border-neutral-800/80">
-          {/* React Bits Lightfall WebGL Canvas */}
-          <div className="absolute inset-0 z-0">
-            <Lightfall
-              key={isDark ? "lightfall-dark" : "lightfall-light"}
-              colors={
-                isDark
-                  ? ["#ffffff", "#34d399", "#10b981", "#fbbf24", "#a78bfa"]
-                  : ["#059669", "#0d9488", "#d97706", "#7c3aed"]
-              }
-              backgroundColor={isDark ? "#10b981" : "#059669"}
-              speed={0.3}
-              streakCount={3}
-              streakWidth={0.8}
-              streakLength={1.1}
-              density={0.65}
-              twinkle={0.35}
-              glow={isDark ? 1.1 : 0.9}
-              backgroundGlow={isDark ? 0.16 : 0.08}
-              headGlow={0.65}
-              depth={0.5}
-              bloom={isDark ? 0.4 : 0.25}
-              zoom={3.2}
-              opacity={1}
-              mouseInteraction={true}
-              mouseStrength={0.45}
-              mouseRadius={0.45}
-              mouseDampening={0.15}
-              lens={0.55}
-              holdToWarp={true}
-              intro={true}
-              fade={0.3}
-              lightMode={!isDark}
-              className="w-full h-full"
+          {/* React Bits ShapeGrid Canvas Background */}
+          <div className="absolute inset-0 z-0 pointer-events-auto">
+            <ShapeGrid
+              key={isDark ? "shapegrid-dark" : "shapegrid-light"}
+              shape="square"
+              direction="diagonal"
+              lineColor={isDark ? "#2a2734" : "#e2e8f0"}
+              hoverColor={isDark ? "#10b981" : "#059669"}
+              hoverFillColor={isDark ? "#064e3b" : "#d1fae5"}
+              fillOpacity={isDark ? 0.22 : 0.28}
+              cellSize={40}
+              speed={0.45}
+              tiltX={0}
+              tiltY={0}
+              rainbow={false}
+              clickCascade={true}
+              trail={0.7}
+              glow={isDark ? 0.45 : 0.25}
+              fade={0.8}
+              backgroundColor="transparent"
             />
           </div>
 

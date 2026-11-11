@@ -1,0 +1,60 @@
+UNIT-I                 12 periods 
+Importance of Software Engineering: Problem Solving Activity, Modelling Activity, Knowledge 
+Acquisition activity, Rationale Driven Activity, Umbrella Activities, Software Engineering 
+Challenges, Software Development Life Cycle. 
+Process Models: Waterfall Model, Incremental Model, Prototype Model, V Model, Spiral Model, 
+Rapid Model, Agile Model. 
+ 
+Learning Outcomes: At the end of this unit, Student will be able to 
+1. List Various Software Development activities. 
+2. Classify the Working of Software Process Models. 
+ 
+UNIT-II:                                                                                     12 periods   
+Software Requirement Analysis & Specification: Need for SRS, Characteristics of Requirements, 
+Functional Requirements, Non-Functional Requirements, Requirement Specification Document 
+IEEE Format. 
+Function Oriented Design: Structured Design Methodology –DFD Diagram, Design Principles, 
+Module- Level Concepts- Cohesion & Coupling. 
+ 
+Learning Outcomes: At the end of this Unit the student will be able to: 
+1. Find Functional and Non-functional Requirements and prepare SRS Document. 
+2. Design Data flow in Functional Approach (DFD). 
+ 
+ 
+UNIT-III:          12 periods  
+Software Architecture: Architecture Views, Architectural Styles for C & C View- Pipe and Filter, 
+Client and Server, Shared Data. 
+Object Oriented Design: Objects and Object classes, Object Oriented Design Process, Design 
+Evolution.  
+Overview of UML: Building Blocks of UML (Things, Relationships, Diagrams), Class Diagram, 
+Class Relationships, Use Case Scenario, Use Case Diagram, Relationships among Use Cases. 
+Interaction Diagrams: Sequence Diagram, Collaboration Diagram. 
+Learning Outcomes: At the end of this Unit the student will be able to: 
+1. Make use of Various Software Architectures. 
+2. Design UML Diagrams with Object Oriented Approach. 
+ 
+ 
+UNIT-IV:                                                                                                     12 periods 
+UML Diagrams: Activity Diagram, State Chart Diagram, Component Diagram & Deployment 
+Diagram. Object Oriented Methodologies: Unified Methodology, Rambaugh Methodology, Booch 
+Methodology.  
+Software Testing Strategies: A Strategic Approach to Software Testing, Test Strategies for 
+Conventional Software and Object-Oriented Software, Validation Testing, White- Box Testing, Basis 
+Path Testing, Black-Box Testing, System Testing. 
+ 
+ 
+Learning Outcomes: At the end of this Unit the student will be able to: 
+1. Illustrate Various object-oriented Methodologies. 
+2. Design Test Suites for Test Scenarios. 
+ 
+UNIT-V:                                                                                                                     12 periods 
+Product Metrics:  A Framework for Product Metrics, Metrics for Requirements Model, Metrics for 
+Design Model, Metrics for Source Code, Metrics for Testing, Metrics for Maintenance. 
+Software Project Management: Definition of Software Project, Need of Software Project 
+Management, Software Project management Plan, Effort Estimation, Case Study on Effort 
+Estimation with COCOMO, Risk Management Plan, Project Tracking & Control. 
+ 
+Learning Outcomes: At the end of this Unit the student will be able to: 
+1. Summarize various Software Testing Techniques. 
+2. Adapt the approaches in Software Project Management to Develop the Software 
+Project

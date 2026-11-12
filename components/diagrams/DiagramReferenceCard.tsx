@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { DiagramMetadata } from "@/lib/data/diagrams";
 import { Maximize2, Download, PenTool, Layers } from "lucide-react";
+import { Card3D } from "@/components/ui/Card3D";
 
 interface DiagramReferenceCardProps {
   diagram: DiagramMetadata;
@@ -47,7 +48,11 @@ export function DiagramReferenceCard({
   };
 
   return (
-    <div className="group rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden">
+    <Card3D
+      maxTilt={8}
+      glowColor="16, 185, 129"
+      className="group rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col overflow-hidden h-full"
+    >
       {/* Thumbnail Header with Quick Actions */}
       <div className="relative aspect-[4/3] bg-slate-50 dark:bg-slate-950/50 p-4 flex items-center justify-center border-b border-slate-100 dark:border-slate-800/80 overflow-hidden">
         <Image
@@ -143,7 +148,7 @@ export function DiagramReferenceCard({
           </button>
         </div>
       </div>
-    </div>
+    </Card3D>
   );
 }
 

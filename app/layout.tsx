@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Software Engineering Academic Learning Platform | ANITS",
   description:
     "A dedicated academic learning platform for college Software Engineering subjects featuring 5-unit curriculum notes, 6-mark exam answers, 16 reference architectures, and full-screen diagram drawing studio.",
-  authors: [{ name: "KAKARA VISHNU VARDHAN (CSE A24126510021)" }],
+  authors: [{ name: "KAKARA VISHNU VARDHAN" }],
   creator: "KAKARA VISHNU VARDHAN",
 };
 

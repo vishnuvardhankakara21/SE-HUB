@@ -11,6 +11,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { UNITS_DATA, TOPICS_DATA } from "@/lib/data/curriculum";
+import { Card3D } from "@/components/ui/Card3D";
 
 function LearnIndexView() {
   const searchParams = useSearchParams();
@@ -69,9 +70,11 @@ function LearnIndexView() {
       {/* Topics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredTopics.map((topic) => (
-          <div
+          <Card3D
             key={topic.id}
-            className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all duration-200 flex flex-col justify-between group"
+            maxTilt={9}
+            glowColor="16, 185, 129"
+            className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-200 flex flex-col justify-between group h-full"
           >
             <div>
               <div className="flex items-center justify-between mb-2.5">
@@ -106,7 +109,7 @@ function LearnIndexView() {
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-          </div>
+          </Card3D>
         ))}
       </div>
     </div>

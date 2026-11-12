@@ -622,3 +622,35 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* 3D Transform & Perspective Utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.translate-z-12 {
+  transform: translateZ(12px);
+}
+
+.translate-z-20 {
+  transform: translateZ(20px);
+}
+
+.translate-z-30 {
+  transform: translateZ(30px);
+}
+
+.card-3d-hover {
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.card-3d-hover:hover {
+  transform: perspective(1000px) translateY(-4px) rotateX(2deg) scale(1.015);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.15), 0 0 15px -3px rgba(16, 185, 129, 0.15);
+}

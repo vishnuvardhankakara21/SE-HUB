@@ -44,6 +44,7 @@ import { useAuth } from "@/lib/data/auth-store";
 import { useSession } from "next-auth/react";
 import { StudentRosterSection } from "@/components/teacher/StudentRosterSection";
 import type { StudentStatsItem } from "@/app/api/teacher/students/route";
+import { Card3D } from "@/components/ui/Card3D";
 
 export default function TeacherDashboardPage() {
   const { role, isLoaded, logout } = useAuth();
@@ -421,7 +422,7 @@ export default function TeacherDashboardPage() {
       {/* REAL TELEMETRY & ACADEMIC METRICS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Registered Students */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition">
+        <Card3D maxTilt={7} glowColor="16, 185, 129" className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden hover:border-emerald-500/30 transition h-full">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <Users className="w-5 h-5" />
@@ -439,10 +440,10 @@ export default function TeacherDashboardPage() {
           <div className="mt-3 text-[11px] text-neutral-400 font-mono">
             College roll numbers (@anits.edu.in)
           </div>
-        </div>
+        </Card3D>
 
         {/* Metric 2: Quiz Attempts & Average Score */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition">
+        <Card3D maxTilt={7} glowColor="59, 130, 246" className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden hover:border-blue-500/30 transition h-full">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <TrendingUp className="w-5 h-5" />
@@ -463,10 +464,10 @@ export default function TeacherDashboardPage() {
               style={{ width: `${Math.min(100, telemetry.averageQuizScore || (telemetry.quizAttempts > 0 ? 50 : 0))}%` }}
             />
           </div>
-        </div>
+        </Card3D>
 
         {/* Metric 3: Published Course Materials */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition">
+        <Card3D maxTilt={7} glowColor="245, 158, 11" className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden hover:border-amber-500/30 transition h-full">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
               <FolderOpen className="w-5 h-5" />
@@ -486,10 +487,10 @@ export default function TeacherDashboardPage() {
             <span>•</span>
             <span>{resources.filter((r) => r.resourceType === "ppt").length} PPTs</span>
           </div>
-        </div>
+        </Card3D>
 
         {/* Metric 4: Question Bank Coverage */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition">
+        <Card3D maxTilt={7} glowColor="99, 102, 241" className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden hover:border-indigo-500/30 transition h-full">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
               <GraduationCap className="w-5 h-5" />
@@ -507,7 +508,7 @@ export default function TeacherDashboardPage() {
           <div className="mt-3 flex items-center justify-between text-[10px] text-slate-400 font-mono">
             <span>U1:20 • U2:12 • U3:19 • U4:15 • U5:13</span>
           </div>
-        </div>
+        </Card3D>
       </div>
 
       {/* WORKSPACE NAVIGATION TABS */}

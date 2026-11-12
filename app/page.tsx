@@ -13,8 +13,11 @@ import {
   Compass,
   Cpu,
   FileCheck,
+  Mail,
+  Github,
 } from "lucide-react";
 import ShapeGrid from "@/components/ui/ShapeGrid";
+import { Card3D } from "@/components/ui/Card3D";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
@@ -255,13 +258,15 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feat, idx) => (
-              <div
+              <Card3D
                 key={idx}
-                className="p-7 rounded-3xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/60 shadow-sm hover:shadow-md hover:border-neutral-400 dark:hover:border-neutral-700 transition flex flex-col justify-between"
+                maxTilt={10}
+                glowColor="16, 185, 129"
+                className="p-7 rounded-3xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/60 shadow-sm hover:shadow-xl hover:border-emerald-500/40 dark:hover:border-emerald-500/30 transition flex flex-col justify-between h-full"
               >
                 <div>
                   <div className="flex items-center justify-between mb-5">
-                    <div className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center shadow-inner">
                       <feat.icon className="w-5 h-5" />
                     </div>
                     <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
@@ -276,19 +281,40 @@ export default function LandingPage() {
                     {feat.desc}
                   </p>
                 </div>
-              </div>
+              </Card3D>
             ))}
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="py-8 px-6 md:px-12 border-t border-neutral-200/80 dark:border-neutral-800 text-center text-xs text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-950 space-y-1">
+      <footer className="py-8 px-6 md:px-12 border-t border-neutral-200/80 dark:border-neutral-800 text-center text-xs text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-950 space-y-2">
         <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-          Developed by <span className="text-emerald-600 dark:text-emerald-400 font-bold">KAKARA VISHNU VARDHAN</span> • CSE • Roll No: <span className="font-mono font-bold text-neutral-900 dark:text-white">A24126510021</span>
+          Developed by <span className="text-emerald-600 dark:text-emerald-400 font-bold">KAKARA VISHNU VARDHAN</span> • Department of Computer Science & Engineering
         </p>
-        <p className="text-[11px] text-neutral-400">
-          Software Engineering Academic Learning Platform • Department of Computer Science & Engineering • Academic Architecture & Platform Development Rights Reserved
+
+        <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-medium text-neutral-600 dark:text-neutral-400 pt-0.5">
+          <a
+            href="mailto:vishnuvardhankakara21@gmail.com"
+            className="inline-flex items-center space-x-1.5 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+          >
+            <Mail className="w-3.5 h-3.5 text-emerald-500" />
+            <span>vishnuvardhankakara21@gmail.com</span>
+          </a>
+          <span className="text-neutral-300 dark:text-neutral-700">•</span>
+          <a
+            href="https://github.com/vishnuvardhankakara21"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center space-x-1.5 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+          >
+            <Github className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />
+            <span>github.com/vishnuvardhankakara21</span>
+          </a>
+        </div>
+
+        <p className="text-[11px] text-neutral-400 pt-1">
+          Software Engineering Academic Learning Platform • Department of Computer Science & Engineering • All Academic Architecture & Platform Development Rights Reserved
         </p>
       </footer>
     </div>

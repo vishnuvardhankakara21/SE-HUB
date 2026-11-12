@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Bookmark, BookOpen, GraduationCap, ArrowRight, Trash2, Layers } from "lucide-react";
 import { TOPICS_DATA } from "@/lib/data/curriculum";
 import { EXAM_QUESTIONS } from "@/lib/data/questions";
+import { Card3D } from "@/components/ui/Card3D";
 
 interface ApiBookmark {
   _id: string;
@@ -99,9 +100,11 @@ export default function BookmarksPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {customTopicBookmarks.length > 0 ? (
                 customTopicBookmarks.map((b) => (
-                  <div
+                  <Card3D
                     key={b._id}
-                    className="p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between"
+                    maxTilt={7}
+                    glowColor="16, 185, 129"
+                    className="p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between hover:border-emerald-500/30 transition h-full"
                   >
                     <div>
                       <div className="flex items-center justify-between">
@@ -136,13 +139,15 @@ export default function BookmarksPage() {
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
-                  </div>
+                  </Card3D>
                 ))
               ) : (
                 sampleBookmarkedTopics.map((topic) => (
-                  <div
+                  <Card3D
                     key={topic.id}
-                    className="p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between"
+                    maxTilt={7}
+                    glowColor="16, 185, 129"
+                    className="p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between hover:border-emerald-500/30 transition h-full"
                   >
                     <div>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
@@ -168,7 +173,7 @@ export default function BookmarksPage() {
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
-                  </div>
+                  </Card3D>
                 ))
               )}
             </div>
@@ -186,9 +191,11 @@ export default function BookmarksPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {customQuestionBookmarks.length > 0 ? (
                 customQuestionBookmarks.map((b) => (
-                  <div
+                  <Card3D
                     key={b._id}
-                    className="p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between"
+                    maxTilt={7}
+                    glowColor="16, 185, 129"
+                    className="p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between hover:border-emerald-500/30 transition h-full"
                   >
                     <div>
                       <div className="flex items-center justify-between">
@@ -218,13 +225,15 @@ export default function BookmarksPage() {
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
-                  </div>
+                  </Card3D>
                 ))
               ) : (
                 sampleBookmarkedQuestions.map((q) => (
-                  <div
+                  <Card3D
                     key={q.id}
-                    className="p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm flex flex-col justify-between"
+                    maxTilt={7}
+                    glowColor="16, 185, 129"
+                    className="p-5 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm flex flex-col justify-between hover:border-emerald-500/30 transition h-full"
                   >
                     <div>
                       <div className="flex items-center space-x-2 text-xs font-semibold">
@@ -253,7 +262,7 @@ export default function BookmarksPage() {
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
-                  </div>
+                  </Card3D>
                 ))
               )}
             </div>

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { UNITS_DATA } from "@/lib/data/curriculum";
 import { INITIAL_ANNOUNCEMENTS } from "@/lib/data/faculty-store";
+import { Card3D } from "@/components/ui/Card3D";
 
 export default function StudentDashboardPage() {
   const { data: session } = useSession();
@@ -112,7 +113,7 @@ export default function StudentDashboardPage() {
       {/* GAMIFICATION & ACADEMIC TELEMETRY ROW */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Metric 1 */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex items-center space-x-3.5 glow-card">
+        <Card3D maxTilt={9} glowColor="245, 158, 11" className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex items-center space-x-3.5">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
             <Flame className="w-5 h-5 sm:w-6 sm:h-6 fill-amber-500 text-amber-500" />
           </div>
@@ -124,10 +125,10 @@ export default function StudentDashboardPage() {
               Active Study Streak
             </div>
           </div>
-        </div>
+        </Card3D>
 
         {/* Metric 2 */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex items-center space-x-3.5 glow-card">
+        <Card3D maxTilt={9} glowColor="16, 185, 129" className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex items-center space-x-3.5">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center shrink-0">
             <Award className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
@@ -139,10 +140,10 @@ export default function StudentDashboardPage() {
               Verified Knowledge Points
             </div>
           </div>
-        </div>
+        </Card3D>
 
         {/* Metric 3 */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex items-center space-x-3.5 glow-card">
+        <Card3D maxTilt={9} glowColor="16, 185, 129" className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex items-center space-x-3.5">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
@@ -154,10 +155,10 @@ export default function StudentDashboardPage() {
               Verbatim 6-Mark Answers
             </div>
           </div>
-        </div>
+        </Card3D>
 
         {/* Metric 4 */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex items-center space-x-3.5 glow-card">
+        <Card3D maxTilt={9} glowColor="99, 102, 241" className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-neutral-900/90 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex items-center space-x-3.5">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0">
             <Layers className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
@@ -169,7 +170,7 @@ export default function StudentDashboardPage() {
               UML Architecture Models
             </div>
           </div>
-        </div>
+        </Card3D>
       </div>
 
       {/* FACULTY DIRECTIVES & ANNOUNCEMENTS BANNER */}
@@ -254,9 +255,11 @@ export default function StudentDashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {UNITS_DATA.map((unit) => (
-            <div
+            <Card3D
               key={unit.unitNumber}
-              className="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex flex-col justify-between space-y-4 glow-card group"
+              maxTilt={8}
+              glowColor="16, 185, 129"
+              className="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 shadow-sm flex flex-col justify-between space-y-4 hover:border-emerald-500/40 transition h-full"
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -295,7 +298,7 @@ export default function StudentDashboardPage() {
                   <span>Practice Quiz</span>
                 </Link>
               </div>
-            </div>
+            </Card3D>
           ))}
         </div>
       </div>

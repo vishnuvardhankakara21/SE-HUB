@@ -29,6 +29,14 @@ import {
 } from "lucide-react";
 import { UNITS_DATA } from "@/lib/data/curriculum";
 
+interface UnitProgressItem {
+  unitNumber: number;
+  attempts: number;
+  bestScore: number | null;
+  bookmarksCount: number;
+  progress: number;
+}
+
 interface ProfileData {
   id: string;
   name: string;
@@ -40,6 +48,10 @@ interface ProfileData {
   department: string;
   avatarUrl: string;
   xp: number;
+  levelName?: string;
+  nextLevelXp?: number;
+  overallProgress?: number;
+  unitProgress?: UnitProgressItem[];
   streak: { current: number; longest: number };
   badges: Array<{ badgeId: string; awardedAt: string }>;
   createdAt: string | null;
@@ -77,25 +89,35 @@ export function StudentProfileView() {
           setEditClassName(data.profile.className || "III/IV B.Tech");
           setEditSection(data.profile.section || "Section A");
         } else {
-          // Fallback to session
+          // Fallback to real defaults (0s)
           const fallback: ProfileData = {
             id: session?.user?.id || "student-id",
             name: session?.user?.name || "Student",
             email: session?.user?.email || "student@anits.edu.in",
             role: "student",
-            rollNumber: session?.user?.rollNumber || "A24126510021",
+            rollNumber: session?.user?.rollNumber || "",
             className: session?.user?.className || "III/IV B.Tech",
             section: session?.user?.section || "Section A",
             department: "Computer Science & Engineering",
             avatarUrl: session?.user?.image || "",
-            xp: 240,
-            streak: { current: 3, longest: 5 },
+            xp: 0,
+            levelName: "Level 1 • Student Explorer",
+            nextLevelXp: 100,
+            overallProgress: 0,
+            unitProgress: [1, 2, 3, 4, 5].map((u) => ({
+              unitNumber: u,
+              attempts: 0,
+              bestScore: null,
+              bookmarksCount: 0,
+              progress: 0,
+            })),
+            streak: { current: 0, longest: 0 },
             badges: [],
             createdAt: null,
             stats: {
-              quizAttempts: 2,
-              bookmarkCount: 4,
-              diagramCount: 1,
+              quizAttempts: 0,
+              bookmarkCount: 0,
+              diagramCount: 0,
             },
           };
           setProfile(fallback);
@@ -463,10 +485,11 @@ export function StudentProfileView() {
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white font-mono">
-            {profile?.xp ?? 240}
+            {profile?.xp ?? 0}{" "}
+            <span className="text-xs font-normal text-neutral-400">XP</span>
           </div>
           <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold block">
-            Level 2 • SE Specialist
+            {profile?.levelName || "Level 1 • Student Explorer"}
           </span>
         </div>
 
@@ -481,11 +504,11 @@ export function StudentProfileView() {
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white font-mono">
-            {profile?.streak?.current ?? 3}{" "}
+            {profile?.streak?.current ?? 0}{" "}
             <span className="text-sm font-normal text-neutral-400">Days</span>
           </div>
           <span className="text-[11px] text-neutral-500 dark:text-neutral-400 font-medium block">
-            Record: {profile?.streak?.longest ?? 5} Days
+            Record: {profile?.streak?.longest ?? 0} Days
           </span>
         </div>
 
@@ -500,7 +523,7 @@ export function StudentProfileView() {
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white font-mono">
-            {profile?.stats?.quizAttempts ?? 2}
+            {profile?.stats?.quizAttempts ?? 0}
           </div>
           <Link
             href="/student/quizzes"
@@ -522,7 +545,7 @@ export function StudentProfileView() {
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white font-mono">
-            {profile?.stats?.bookmarkCount ?? 4}
+            {profile?.stats?.bookmarkCount ?? 0}
           </div>
           <Link
             href="/student/bookmarks"
@@ -555,98 +578,87 @@ export function StudentProfileView() {
         </div>
 
         <div className="space-y-4">
-          {[
-            {
-              unit: 1,
-              title: "Importance of Software Engineering & Process Models",
-              periods: "12 Periods",
-              progress: 85,
-              qCount: "20 Q&As",
-            },
-            {
-              unit: 2,
-              title: "Requirements Engineering, Analysis & DFD",
-              periods: "12 Periods",
-              progress: 70,
-              qCount: "12 Q&As",
-            },
-            {
-              unit: 3,
-              title: "System Architecture & UML Modeling",
-              periods: "12 Periods",
-              progress: 90,
-              qCount: "19 Q&As",
-            },
-            {
-              unit: 4,
-              title: "Software Testing & McCabe Cyclomatic Complexity V(G)",
-              periods: "12 Periods",
-              progress: 60,
-              qCount: "15 Q&As",
-            },
-            {
-              unit: 5,
-              title: "Software Metrics, COCOMO & Risk Management",
-              periods: "12 Periods",
-              progress: 65,
-              qCount: "13 Q&As",
-            },
-          ].map((item) => (
-            <div
-              key={item.unit}
-              className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-950/50 border border-neutral-200/70 dark:border-neutral-800/80 space-y-2.5"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <div className="flex items-center space-x-2">
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200">
-                    Unit 0{item.unit}
-                  </span>
-                  <span className="text-xs font-bold text-neutral-900 dark:text-white">
-                    {item.title}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3 text-[11px] font-mono text-neutral-500">
-                  <span>{item.periods}</span>
-                  <span>•</span>
-                  <span>{item.qCount}</span>
-                </div>
-              </div>
+          {UNITS_DATA.map((unit) => {
+            const uData = profile?.unitProgress?.find(
+              (p) => p.unitNumber === unit.unitNumber
+            );
+            const progress = uData?.progress ?? 0;
+            const attempts = uData?.attempts ?? 0;
+            const bestScore = uData?.bestScore;
 
-              {/* Progress bar */}
-              <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
-                <div
-                  className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${item.progress}%` }}
-                />
-              </div>
+            return (
+              <div
+                key={unit.unitNumber}
+                className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-950/50 border border-neutral-200/70 dark:border-neutral-800/80 space-y-2.5"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200">
+                      Unit 0{unit.unitNumber}
+                    </span>
+                    <span className="text-xs font-bold text-neutral-900 dark:text-white">
+                      {unit.title}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-[11px] font-mono text-neutral-500">
+                    <span>{unit.periods} Periods</span>
+                    <span>•</span>
+                    <span>
+                      {attempts > 0 ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                          Quiz: {bestScore}% ({attempts} att)
+                        </span>
+                      ) : (
+                        <span className="text-neutral-400">Quiz: Not Attempted</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
 
-              <div className="flex items-center justify-between text-[11px] pt-0.5">
-                <span className="text-neutral-500 dark:text-neutral-400">
-                  Mastery: <strong className="text-neutral-900 dark:text-white font-mono">{item.progress}%</strong>
-                </span>
-                <div className="flex items-center space-x-3">
-                  <Link
-                    href={`/student/learn/${item.unit}`}
-                    className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
-                  >
-                    Read Notes
-                  </Link>
-                  <Link
-                    href={`/student/exam-prep?unit=${item.unit}`}
-                    className="text-neutral-600 dark:text-neutral-300 font-semibold hover:underline"
-                  >
-                    6-Mark Q&As
-                  </Link>
-                  <Link
-                    href={`/student/quizzes?unit=${item.unit}`}
-                    className="text-neutral-600 dark:text-neutral-300 font-semibold hover:underline"
-                  >
-                    Quiz
-                  </Link>
+                {/* Progress bar */}
+                <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] pt-0.5">
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                    Real Progress:{" "}
+                    <strong className="text-neutral-900 dark:text-white font-mono">
+                      {progress}%
+                    </strong>
+                    {uData && uData.bookmarksCount > 0 && (
+                      <span className="ml-2 text-neutral-400 font-mono text-[10px]">
+                        ({uData.bookmarksCount} bookmarked)
+                      </span>
+                    )}
+                  </span>
+                  <div className="flex items-center space-x-3">
+                    <Link
+                      href={`/student/learn/${unit.unitNumber}`}
+                      className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
+                    >
+                      Read Notes
+                    </Link>
+                    <Link
+                      href={`/student/exam-prep?unit=${unit.unitNumber}`}
+                      className="text-neutral-600 dark:text-neutral-300 font-semibold hover:underline"
+                    >
+                      6-Mark Q&As
+                    </Link>
+                    <Link
+                      href={`/student/quizzes?unit=${unit.unitNumber}`}
+                      className="text-neutral-600 dark:text-neutral-300 font-semibold hover:underline"
+                    >
+                      Take Quiz
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

@@ -22,13 +22,59 @@ export async function GET(request: NextRequest) {
       : { email: session.user.email?.toLowerCase().trim() };
 
     const user = await User.findOne(query).lean();
-
     const userId = user?._id || session.user.id;
-    const [quizAttempts, bookmarkCount, diagramCount] = await Promise.all([
-      QuizResult.countDocuments({ userId }),
-      Bookmark.countDocuments({ userId }),
+
+    const [allQuizResults, allBookmarks, diagramCount] = await Promise.all([
+      QuizResult.find({ userId }).sort({ createdAt: -1 }).lean(),
+      Bookmark.find({ userId }).select("unitNumber").lean(),
       PersonalDiagram.countDocuments({ userId }),
     ]);
+
+    const quizAttempts = allQuizResults.length;
+    const bookmarkCount = allBookmarks.length;
+
+    // Calculate authentic per-unit progress from real quiz results and bookmarks
+    const unitProgress = [1, 2, 3, 4, 5].map((uNum) => {
+      const uQuizzes = allQuizResults.filter((q) => q.unitNumber === uNum);
+      const attempts = uQuizzes.length;
+      const bestScore =
+        attempts > 0
+          ? Math.max(...uQuizzes.map((q) => q.percentage || 0))
+          : null;
+
+      const bookmarksCount = allBookmarks.filter((b) => b.unitNumber === uNum).length;
+
+      // Authentic progress calculation: quiz score (up to 80%) + saved study materials (up to 20%)
+      const quizContrib = bestScore !== null ? (bestScore * 0.8) : 0;
+      const bookContrib = Math.min(20, bookmarksCount * 10);
+      const progressPercent = Math.min(100, Math.round(quizContrib + bookContrib));
+
+      return {
+        unitNumber: uNum,
+        attempts,
+        bestScore,
+        bookmarksCount,
+        progress: progressPercent,
+      };
+    });
+
+    const overallProgress = Math.round(
+      unitProgress.reduce((sum, u) => sum + u.progress, 0) / 5
+    );
+
+    const userXp = user?.xp ?? 0;
+    let levelName = "Level 1 • Student Explorer";
+    let nextLevelXp = 100;
+    if (userXp >= 600) {
+      levelName = "Level 4 • SE Architect";
+      nextLevelXp = 1000;
+    } else if (userXp >= 300) {
+      levelName = "Level 3 • SE Specialist";
+      nextLevelXp = 600;
+    } else if (userXp >= 100) {
+      levelName = "Level 2 • SE Practitioner";
+      nextLevelXp = 300;
+    }
 
     return NextResponse.json({
       success: true,
@@ -42,14 +88,18 @@ export async function GET(request: NextRequest) {
         section: user?.section || session.user.section || "Section A",
         department: user?.department || "Computer Science & Engineering",
         avatarUrl: user?.avatarUrl || session.user.image || "",
-        xp: user?.xp ?? 0,
+        xp: userXp,
+        levelName,
+        nextLevelXp,
         streak: user?.streak ?? { current: 0, longest: 0 },
         badges: user?.earnedBadges ?? [],
         createdAt: user?.createdAt || null,
+        overallProgress,
+        unitProgress,
         stats: {
-          quizAttempts: quizAttempts ?? 0,
-          bookmarkCount: bookmarkCount ?? 0,
-          diagramCount: diagramCount ?? 0,
+          quizAttempts,
+          bookmarkCount,
+          diagramCount,
         },
       },
     });
@@ -106,4 +156,3 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
-

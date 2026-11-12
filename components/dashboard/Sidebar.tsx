@@ -23,6 +23,7 @@ import {
   Bell,
   PanelLeftClose,
   PanelLeft,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/data/auth-store";
@@ -34,6 +35,13 @@ interface SidebarProps {
   onToggleDesktopSidebar?: () => void;
   isMobile?: boolean;
   isSidebarOpen?: boolean;
+}
+
+interface SidebarLink {
+  title: string;
+  href: string;
+  icon: any;
+  exact?: boolean;
 }
 
 export function Sidebar({
@@ -62,14 +70,8 @@ export function Sidebar({
 
   const userSubtitle = session?.user?.email || (isTeacherRoute ? "Faculty Portal" : "Student Portal");
 
-  // Navigation Links strictly for students
-  const studentLinks = [
-    {
-      title: "Overview",
-      href: "/student",
-      icon: LayoutDashboard,
-      exact: true,
-    },
+  // Navigation Links strictly for students (Profile section at the very last)
+  const studentLinks: SidebarLink[] = [
     {
       title: "Syllabus Roadmap",
       href: "/student/syllabus",
@@ -79,19 +81,16 @@ export function Sidebar({
       title: "5-Unit Theory Notes",
       href: "/student/learn",
       icon: BookOpen,
-      badge: "5 Units",
     },
     {
       title: "Exam Bank (6-Marks)",
       href: "/student/exam-prep",
       icon: GraduationCap,
-      badge: "79 Q&A",
     },
     {
       title: "16 Reference Diagrams",
       href: "/student/diagrams",
       icon: ImageIcon,
-      badge: "16 Figs",
     },
     {
       title: "Drawing Studio",
@@ -123,10 +122,15 @@ export function Sidebar({
       href: "/student/bookmarks",
       icon: Bookmark,
     },
+    {
+      title: "My Profile & Progress",
+      href: "/student/profile",
+      icon: User,
+    },
   ];
 
-  // Navigation Links strictly for teachers
-  const teacherLinks = [
+  // Navigation Links strictly for teachers (clean without badge clutter)
+  const teacherLinks: SidebarLink[] = [
     {
       title: "Faculty Studio",
       href: "/teacher",
@@ -147,13 +151,11 @@ export function Sidebar({
       title: "Question Bank Audit",
       href: "/teacher#questions-section",
       icon: GraduationCap,
-      badge: "79 Qs",
     },
     {
       title: "ANITS Previous Papers",
       href: "/teacher#papers-section",
       icon: FileText,
-      badge: "3 Papers",
     },
     {
       title: "Broadcast Directives",
@@ -246,9 +248,6 @@ export function Sidebar({
                 <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 font-mono">
                   Curriculum Modules
                 </span>
-                <span className="text-[10px] font-mono text-neutral-600 dark:text-neutral-400 font-semibold">
-                  5 Units
-                </span>
               </div>
               <nav className="space-y-1">
                 {studentLinks.map((item) => {
@@ -279,19 +278,6 @@ export function Sidebar({
                         />
                         <span>{item.title}</span>
                       </div>
-
-                      {item.badge && (
-                        <span
-                          className={cn(
-                            "text-[10px] px-1.5 py-0.5 rounded-md font-mono font-medium",
-                            isActive
-                              ? "bg-neutral-800 text-neutral-200 dark:bg-neutral-200 dark:text-neutral-800"
-                              : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
-                          )}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
                     </Link>
                   );
                 })}
@@ -330,11 +316,6 @@ export function Sidebar({
                         <item.icon className="w-4 h-4 text-amber-500" />
                         <span>{item.title}</span>
                       </div>
-                      {item.badge && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 font-semibold font-mono">
-                          {item.badge}
-                        </span>
-                      )}
                     </Link>
                   );
                 })}
@@ -346,24 +327,37 @@ export function Sidebar({
 
       {/* Footer Profile Preview */}
       <div className="p-3 border-t border-neutral-200/70 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-neutral-900/40 space-y-2">
-        <div className="flex items-center space-x-3 p-2 rounded-xl">
+        <Link
+          href={isTeacherRoute ? "/teacher" : "/student/profile"}
+          onClick={handleNavClick}
+          className="flex items-center space-x-3 p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800/70 transition group"
+          title="View Student Profile"
+        >
           <div
             className={cn(
-              "w-8 h-8 rounded-full text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0",
+              "w-8 h-8 rounded-full text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0 overflow-hidden",
               isTeacherRoute ? "bg-amber-600" : "bg-neutral-900 dark:bg-white dark:text-neutral-900"
             )}
           >
-            {userInitials}
+            {session?.user?.image ? (
+              <img
+                src={session.user.image}
+                alt={userName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span>{userInitials}</span>
+            )}
           </div>
           <div className="flex-1 min-w-0">
-            <span className="block text-xs font-bold text-neutral-900 dark:text-white truncate">
+            <span className="block text-xs font-bold text-neutral-900 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
               {userName}
             </span>
             <span className="block text-[11px] text-neutral-500 dark:text-neutral-400 truncate font-mono">
               {userSubtitle}
             </span>
           </div>
-        </div>
+        </Link>
 
         <button
           onClick={handleSignOut}

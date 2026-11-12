@@ -201,13 +201,13 @@ export default function AiAssistantPage() {
         return (
           <div
             key={pIdx}
-            className="my-3 p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/25 dark:border-amber-500/20 space-y-1.5 shadow-xs"
+            className="my-3 p-3.5 sm:p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/20 border border-emerald-500/30 dark:border-emerald-500/25 space-y-1.5 shadow-xs"
           >
-            <div className="flex items-center space-x-1.5 text-[10px] font-bold font-mono uppercase tracking-wider text-amber-700 dark:text-amber-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <div className="flex items-center space-x-1.5 text-[10px] font-bold font-mono uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               <span>Standard University Exam Formula</span>
             </div>
-            <div className="font-mono text-xs sm:text-sm font-bold text-neutral-900 dark:text-amber-200 tracking-wide select-all leading-relaxed whitespace-pre-line">
+            <div className="font-mono text-xs sm:text-sm font-bold text-neutral-900 dark:text-emerald-200 tracking-wide select-all leading-relaxed whitespace-pre-line">
               {cleanedFormula}
             </div>
           </div>
@@ -320,7 +320,7 @@ export default function AiAssistantPage() {
             className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 text-xs font-semibold text-neutral-700 dark:text-neutral-300 transition shadow-xs"
             title="Configure Free LLM API (Google Gemini / Groq)"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
             <span>
               {savedKey
                 ? savedKey.startsWith("AIza")
@@ -342,7 +342,7 @@ export default function AiAssistantPage() {
           >
             <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-3">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
                   <Key className="w-4 h-4" />
                 </div>
                 <div>
@@ -368,24 +368,24 @@ export default function AiAssistantPage() {
               </p>
 
               {/* Steps to get Free Key */}
-              <div className="p-3.5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 space-y-2">
-                <div className="font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-950/60 border border-neutral-200 dark:border-neutral-800 space-y-2">
+                <div className="font-bold text-neutral-900 dark:text-white flex items-center justify-between">
                   <span>How to get a Free Google Gemini API Key:</span>
                   <a
                     href="https://aistudio.google.com/app/apikey"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center text-[11px] underline hover:text-amber-700 dark:hover:text-amber-200"
+                    className="inline-flex items-center text-[11px] text-emerald-600 dark:text-emerald-400 underline hover:text-emerald-700"
                   >
                     <span>Get Key</span>
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </div>
-                <ol className="list-decimal list-inside space-y-1 text-[11px] text-amber-800 dark:text-amber-300/90 leading-relaxed">
+                <ol className="list-decimal list-inside space-y-1 text-[11px] text-neutral-600 dark:text-neutral-300 leading-relaxed">
                   <li>Visit <strong>Google AI Studio</strong> (aistudio.google.com).</li>
-                  <li>Click <strong>"Get API key"</strong> &gt; <strong>"Create API key"</strong>.</li>
+                  <li>Click <strong>&quot;Get API key&quot;</strong> &gt; <strong>&quot;Create API key&quot;</strong>.</li>
                   <li>No credit card required (1,500 free requests per day).</li>
-                  <li>Copy and paste your key below (starts with <code className="font-mono">AIza...</code>).</li>
+                  <li>Copy and paste your key below (starts with <code className="font-mono text-emerald-600 dark:text-emerald-400">AIza...</code>).</li>
                 </ol>
               </div>
 
@@ -399,7 +399,7 @@ export default function AiAssistantPage() {
                     value={apiKeyInput}
                     onChange={(e) => setApiKeyInput(e.target.value)}
                     placeholder="AIzaSy... or gsk_..."
-                    className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                    className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                   />
                   <span className="text-[10px] text-neutral-400 mt-1 block">
                     Saved locally in your browser storage only. Never sent to third parties.
@@ -427,7 +427,7 @@ export default function AiAssistantPage() {
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition"
+                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition"
                     >
                       Save Key
                     </button>
@@ -496,9 +496,9 @@ export default function AiAssistantPage() {
                       <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
                         {item.data.marks}
                       </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200/60">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/50">
                         {item.data.source === "gemini"
-                          ? "✨ Generated by Google Gemini 1.5/2.0 Live LLM"
+                          ? "✨ Generated by Google Gemini Live LLM"
                           : item.data.source === "groq"
                           ? "⚡ Generated by Groq Llama 3.3 70B"
                           : item.data.source === "exam_bank"
@@ -614,7 +614,7 @@ export default function AiAssistantPage() {
                   {/* Marking Scheme */}
                   <div className="p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-950/30 space-y-1.5">
                     <div className="flex items-center space-x-2 text-xs font-bold text-neutral-700 dark:text-neutral-300 font-mono uppercase tracking-wider">
-                      <Award className="w-4 h-4 text-amber-500" />
+                      <Award className="w-4 h-4 text-emerald-500" />
                       <span>Exam Marking Scheme</span>
                     </div>
                     <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
@@ -653,8 +653,8 @@ export default function AiAssistantPage() {
                 </div>
 
                 {/* 6. Golden Exam Preparation Tip */}
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex items-start space-x-2.5">
-                  <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/25 text-xs text-emerald-950 dark:text-emerald-200 flex items-start space-x-2.5">
+                  <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold">University Exam Preparation Tip: </span>
                     <span className="leading-relaxed">{item.data.examTip}</span>

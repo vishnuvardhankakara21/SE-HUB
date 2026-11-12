@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -18,6 +18,8 @@ import {
   Hash,
   Camera,
   Layers,
+  X,
+  Upload,
 } from "lucide-react";
 
 function RegisterForm() {
@@ -46,6 +48,55 @@ function RegisterForm() {
       : ""
   );
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setErrorMsg("Please select a valid image file (JPG, PNG, or WebP).");
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      setErrorMsg("Image size exceeds 8MB. Please choose a smaller image.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        // Compress & resize to 320x320 max for optimal profile rendering
+        const canvas = document.createElement("canvas");
+        const MAX_DIM = 320;
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > MAX_DIM) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          }
+        } else {
+          if (height > MAX_DIM) {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          setAvatarUrl(compressedDataUrl);
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     if (roleParam === "teacher" || roleParam === "student") {
@@ -355,24 +406,84 @@ function RegisterForm() {
               </div>
             )}
 
-            {/* Optional Profile Picture URL */}
+            {/* Profile Picture with Device File Browse & Instant Preview */}
             <div>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-1.5">
                 <label className="font-semibold text-neutral-700 dark:text-neutral-300">
-                  Profile Picture URL (Optional)
+                  Profile Photo (Optional)
                 </label>
-                <span className="text-[10px] text-neutral-400 font-mono">Optional</span>
+                <span className="text-[10px] text-neutral-400 font-mono">Upload from device</span>
               </div>
-              <div className="relative">
-                <Camera className="w-4 h-4 text-neutral-400 absolute left-3 top-2.5 pointer-events-none" />
-                <input
-                  type="url"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  placeholder="https://example.com/photo.jpg (or leave empty)"
-                  className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl pl-9 pr-3 py-2 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
-                />
-              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                onChange={handleImageFileChange}
+                className="hidden"
+              />
+
+              {avatarUrl ? (
+                <div className="flex items-center space-x-3.5 p-2.5 rounded-2xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800">
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500 shadow-sm shrink-0">
+                    <img
+                      src={avatarUrl}
+                      alt="Avatar Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200 truncate">
+                      Photo selected
+                    </p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                      Ready to save with profile
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-2.5 py-1.5 rounded-lg bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-[11px] font-bold text-neutral-700 dark:text-neutral-300 transition"
+                    >
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAvatarUrl("");
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                      title="Remove Photo"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="cursor-pointer group flex items-center justify-between p-3 rounded-2xl border-2 border-dashed border-neutral-300 dark:border-neutral-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-neutral-50/70 dark:bg-neutral-950/70 transition"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 group-hover:bg-emerald-500/10 flex items-center justify-center text-neutral-600 dark:text-neutral-400 group-hover:text-emerald-500 transition">
+                      <Camera className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                        Browse Photo from Device
+                      </p>
+                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                        PNG, JPG, or WebP (Click to choose file)
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1.5 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-xs transition group-hover:scale-105 pointer-events-none">
+                    Browse
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Password */}

@@ -114,6 +114,7 @@ const providers: NextAuthOptions["providers"] = [
         rollNumber: user.rollNumber,
         className: user.className,
         section: user.section,
+        image: user.avatarUrl,
       };
     },
   }),
@@ -162,6 +163,7 @@ export const authOptions: NextAuthOptions = {
         user.rollNumber = existingUser.rollNumber;
         user.className = existingUser.className;
         user.section = existingUser.section;
+        user.image = existingUser.avatarUrl || user.image;
       }
       return true;
     },
@@ -172,6 +174,7 @@ export const authOptions: NextAuthOptions = {
         token.rollNumber = user.rollNumber;
         token.className = user.className;
         token.section = user.section;
+        token.picture = (user as any).avatarUrl || user.image;
       }
       return token;
     },
@@ -182,6 +185,7 @@ export const authOptions: NextAuthOptions = {
         session.user.rollNumber = token.rollNumber;
         session.user.className = token.className;
         session.user.section = token.section;
+        session.user.image = (token.picture as string) || (token as any).avatarUrl || session.user.image;
       }
       return session;
     },

@@ -11,7 +11,6 @@ import {
   Lightbulb,
   Award,
 } from "lucide-react";
-import { Card3D } from "@/components/ui/Card3D";
 
 interface QuestionCardProps {
   question: ExamQuestion;
@@ -36,11 +35,7 @@ export function QuestionCard({
   };
 
   return (
-    <Card3D
-      maxTilt={4}
-      glowColor="16, 185, 129"
-      className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden transition-all duration-200"
-    >
+    <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden transition-all duration-200">
       {/* Question Header */}
       <div className="p-5 flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-950/20">
         <div className="flex-1">
@@ -131,7 +126,7 @@ export function QuestionCard({
           </div>
         </div>
       )}
-    </Card3D>
+    </div>
   );
 }
 

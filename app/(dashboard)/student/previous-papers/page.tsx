@@ -24,7 +24,6 @@ import {
   PreviousPaper,
   QuestionGroup,
 } from "@/lib/data/previous-papers-data";
-import { Card3D } from "@/components/ui/Card3D";
 
 export default function PreviousPapersPage() {
   const [selectedFilter, setSelectedFilter] = useState<"all" | "Semester-End Regular" | "Mid-Term 1" | "Mid-Term 2">("all");
@@ -113,11 +112,9 @@ export default function PreviousPapersPage() {
           const isExpanded = expandedPaperId === paper.id;
 
           return (
-            <Card3D
+            <div
               key={paper.id}
-              maxTilt={4}
-              glowColor="16, 185, 129"
-              className="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm overflow-hidden transition-all duration-200 hover:border-emerald-500/30"
+              className="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm overflow-hidden transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-700"
             >
               {/* Paper Overview Header Card */}
               <div className="p-6 sm:p-7 space-y-4">
@@ -383,7 +380,7 @@ export default function PreviousPapersPage() {
                   </div>
                 </div>
               )}
-            </Card3D>
+            </div>
           );
         })}
       </div>

@@ -424,6 +424,8 @@ export default function PreviousPapersPage() {
               <img
                 src={previewImageUrl}
                 alt={previewTitle}
+                loading="lazy"
+                decoding="async"
                 className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-lg border border-neutral-800"
               />
             </div>

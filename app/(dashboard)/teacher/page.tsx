@@ -2256,6 +2256,8 @@ export default function TeacherDashboardPage() {
               <img
                 src={paperPreviewImageUrl}
                 alt={paperPreviewTitle}
+                loading="lazy"
+                decoding="async"
                 className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-lg border border-slate-800"
               />
             </div>

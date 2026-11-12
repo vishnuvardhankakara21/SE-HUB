@@ -19,6 +19,7 @@ import {
 import ShapeGrid from "@/components/ui/ShapeGrid";
 import { Card3D } from "@/components/ui/Card3D";
 import { Button } from "@/components/ui/button";
+import { ShinyButton } from "@/components/ui/shiny-button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export default function LandingPage() {
@@ -104,7 +105,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <nav aria-label="Main Navigation" className="flex items-center space-x-3">
           <ThemeToggle size={36} />
           <Link
             href="/login"
@@ -121,7 +122,7 @@ export default function LandingPage() {
               <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Button>
           </Link>
-        </div>
+        </nav>
       </header>
 
       {/* Main Content with Lightfall Canvas Background */}
@@ -173,26 +174,18 @@ export default function LandingPage() {
             </p>
 
             {/* Mandatory Authentication Actions */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2 pointer-events-auto">
-              <Link href="/login">
-                <div className="inline-block group relative bg-gradient-to-b from-black/10 to-white/10 dark:from-white/10 dark:to-black/10 p-px rounded-2xl backdrop-blur-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <Button
-                    variant="ghost"
-                    className="rounded-[1.15rem] px-8 py-5 text-sm sm:text-base font-bold backdrop-blur-md bg-neutral-950 hover:bg-neutral-900 text-white dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-950 transition-all duration-300 border border-neutral-800 dark:border-neutral-200"
-                  >
-                    <span>Sign In to Access Platform</span>
-                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2 pointer-events-auto">
+              <Link href="/login" tabIndex={-1}>
+                <ShinyButton className="shadow-lg hover:shadow-emerald-500/20 text-sm sm:text-base font-bold">
+                  <span>Sign In to Access Platform</span>
+                  <ArrowRight className="ml-1.5 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </ShinyButton>
               </Link>
 
-              <Link href="/register">
-                <Button
-                  variant="outline"
-                  className="rounded-2xl px-7 py-5 text-sm sm:text-base font-semibold border-neutral-300 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 transition"
-                >
+              <Link href="/register" tabIndex={-1}>
+                <ShinyButton className="shadow-md text-sm sm:text-base font-semibold opacity-95 hover:opacity-100">
                   <span>Create Institutional Account</span>
-                </Button>
+                </ShinyButton>
               </Link>
             </div>
 
@@ -212,8 +205,12 @@ export default function LandingPage() {
         </section>
 
         {/* Engineering Curriculum Units Overview Bar */}
-        <section className="py-8 border-b border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-neutral-950/50">
+        <section
+          aria-label="Course Syllabus Breakdown"
+          className="py-8 border-b border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-50/50 dark:bg-neutral-950/50"
+        >
           <div className="max-w-6xl mx-auto px-6 md:px-12">
+            <h2 className="sr-only">Course Syllabus Breakdown & Curriculum Units</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-center">
               {[
                 { unit: "Unit I", title: "Process Models & Agile", count: "20 Q&As" },
@@ -242,13 +239,19 @@ export default function LandingPage() {
         </section>
 
         {/* Feature Grid */}
-        <section className="py-20 px-6 md:px-12 max-w-6xl mx-auto">
+        <section
+          aria-labelledby="features-heading"
+          className="py-20 px-6 md:px-12 max-w-6xl mx-auto"
+        >
           <div className="text-center max-w-2xl mx-auto mb-14">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold mb-3">
               <Compass className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400" />
               <span>Institutional Engineering Rigor</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+            <h2
+              id="features-heading"
+              className="text-3xl md:text-4xl font-extrabold text-neutral-900 dark:text-white tracking-tight"
+            >
               Built for Engineering Academic Excellence
             </h2>
             <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 mt-2.5 leading-relaxed">

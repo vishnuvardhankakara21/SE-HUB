@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  outputFileTracingRoot: path.join(__dirname),
+  outputFileTracingRoot: path.join(process.cwd()),
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

@@ -26,6 +26,9 @@ import {
   HelpCircle,
   ShieldCheck,
   Upload,
+  Bell,
+  AlertCircle,
+  Megaphone,
 } from "lucide-react";
 import { UNITS_DATA } from "@/lib/data/curriculum";
 
@@ -77,6 +80,36 @@ export function StudentProfileView() {
   const [editName, setEditName] = useState("");
   const [editClassName, setEditClassName] = useState("III/IV B.Tech");
   const [editSection, setEditSection] = useState("Section A");
+
+  // Faculty announcements & directives
+  const [facultyDirectives, setFacultyDirectives] = useState<any[]>([]);
+  const [dismissedDirectives, setDismissedDirectives] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("se_dismissed_directives");
+      if (saved) {
+        setDismissedDirectives(JSON.parse(saved));
+      }
+    } catch {}
+
+    fetch("/api/announcements")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.announcements)) {
+          setFacultyDirectives(data.announcements);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleDismissDirective = (id: string) => {
+    const updated = [...dismissedDirectives, id];
+    setDismissedDirectives(updated);
+    try {
+      localStorage.setItem("se_dismissed_directives", JSON.stringify(updated));
+    } catch {}
+  };
 
   useEffect(() => {
     async function fetchProfile() {
@@ -281,6 +314,91 @@ export function StudentProfileView() {
         <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center space-x-2 animate-in fade-in">
           <X className="w-4 h-4 text-rose-500 shrink-0" />
           <span>{errorMsg}</span>
+        </div>
+      )}
+
+      {/* FACULTY DIRECTIVES & BROADCAST ALERTS (STUDENT NOTIFICATIONS) */}
+      {facultyDirectives.filter((d) => !dismissedDirectives.includes(d.id)).length > 0 && (
+        <div className="space-y-3">
+          {facultyDirectives
+            .filter((d) => !dismissedDirectives.includes(d.id))
+            .map((directive) => (
+              <div
+                key={directive.id}
+                className={`p-4 sm:p-5 rounded-3xl border shadow-sm transition animate-in fade-in slide-in-from-top-2 duration-200 ${
+                  directive.priority === "exam"
+                    ? "bg-rose-500/[0.07] border-rose-500/30 text-rose-950 dark:text-rose-100"
+                    : directive.priority === "urgent"
+                    ? "bg-amber-500/[0.07] border-amber-500/30 text-amber-950 dark:text-amber-100"
+                    : "bg-blue-500/[0.07] border-blue-500/30 text-slate-900 dark:text-slate-100"
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div className="flex items-start space-x-3">
+                    <div
+                      className={`p-2 rounded-2xl shrink-0 mt-0.5 ${
+                        directive.priority === "exam"
+                          ? "bg-rose-500/20 text-rose-600 dark:text-rose-400"
+                          : directive.priority === "urgent"
+                          ? "bg-amber-500/20 text-amber-600 dark:text-amber-400"
+                          : "bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                      }`}
+                    >
+                      <Bell className="w-4 h-4" />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase font-mono tracking-wider ${
+                            directive.priority === "exam"
+                              ? "bg-rose-600 text-white"
+                              : directive.priority === "urgent"
+                              ? "bg-amber-600 text-white"
+                              : "bg-blue-600 text-white"
+                          }`}
+                        >
+                          {directive.priority === "exam"
+                            ? "Official Exam Directive"
+                            : directive.priority === "urgent"
+                            ? "Urgent Alert"
+                            : "Faculty Notice"}
+                        </span>
+                        {directive.unitTag && (
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-black/10 dark:bg-white/10">
+                            Unit 0{directive.unitTag}
+                          </span>
+                        )}
+                        <span className="text-[11px] opacity-70 font-mono">
+                          Posted {directive.date}
+                        </span>
+                      </div>
+
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white pt-0.5">
+                        {directive.title}
+                      </h4>
+
+                      <p className="text-xs opacity-90 leading-relaxed max-w-3xl">
+                        {directive.content}
+                      </p>
+
+                      <div className="text-[11px] opacity-70 font-mono pt-1">
+                        Faculty: {directive.author} ({directive.authorRole})
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleDismissDirective(directive.id)}
+                    className="px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-xs font-semibold shrink-0 self-start transition flex items-center space-x-1.5"
+                    title="Acknowledge directive"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Acknowledge</span>
+                  </button>
+                </div>
+              </div>
+            ))}
         </div>
       )}
 

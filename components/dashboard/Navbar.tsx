@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -17,6 +17,9 @@ import {
   Menu,
   PanelLeftClose,
   PanelLeft,
+  Bell,
+  CheckCheck,
+  Megaphone,
 } from "lucide-react";
 import { TOPICS_DATA } from "@/lib/data/curriculum";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -43,6 +46,79 @@ export function Navbar({
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [stats, setStats] = useState({ xp: 0, streak: 0 });
+
+  interface AnnouncementItem {
+    id: string;
+    title: string;
+    content: string;
+    priority: "exam" | "urgent" | "normal";
+    author: string;
+    authorRole: string;
+    date: string;
+    unitTag?: number;
+  }
+
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
+  const [readAnnouncementIds, setReadAnnouncementIds] = useState<string[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const fetchAnnouncements = () => {
+    fetch("/api/announcements")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.announcements)) {
+          setAnnouncements(data.announcements);
+        }
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("se_read_announcements");
+      if (stored) {
+        setReadAnnouncementIds(JSON.parse(stored));
+      }
+    } catch {}
+
+    fetchAnnouncements();
+    const interval = setInterval(fetchAnnouncements, 25000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  const unreadAnnouncements = announcements.filter(
+    (a) => !readAnnouncementIds.includes(a.id)
+  );
+  const unreadCount = unreadAnnouncements.length;
+
+  const markAllAsRead = () => {
+    const allIds = announcements.map((a) => a.id);
+    setReadAnnouncementIds(allIds);
+    try {
+      localStorage.setItem("se_read_announcements", JSON.stringify(allIds));
+    } catch {}
+  };
+
+  const markOneAsRead = (id: string) => {
+    if (!readAnnouncementIds.includes(id)) {
+      const updated = [...readAnnouncementIds, id];
+      setReadAnnouncementIds(updated);
+      try {
+        localStorage.setItem("se_read_announcements", JSON.stringify(updated));
+      } catch {}
+    }
+  };
 
   const isTeacherRoute = pathname.startsWith("/teacher");
 
@@ -179,6 +255,147 @@ export function Navbar({
         )}
 
 
+
+        {/* Notifications Bell Dropdown (Faculty Directives & Broadcast Alerts) */}
+        <div className="relative" ref={notifRef}>
+          <button
+            onClick={() => setNotifOpen((prev) => !prev)}
+            className="relative p-2 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-600 dark:text-neutral-300 transition flex items-center justify-center shadow-xs"
+            title={
+              unreadCount > 0
+                ? `${unreadCount} new faculty directive${unreadCount > 1 ? "s" : ""}`
+                : "Faculty Directives & Department Notifications"
+            }
+            aria-label="Notifications"
+          >
+            <Bell className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-rose-600 text-[9px] font-extrabold text-white font-mono shadow-xs">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              </span>
+            )}
+          </button>
+
+          {notifOpen && (
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              {/* Dropdown Header */}
+              <div className="px-4 py-3 bg-neutral-50/90 dark:bg-neutral-950/80 border-b border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="p-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    <Bell className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-neutral-900 dark:text-white">
+                      Faculty Directives
+                    </h4>
+                    <p className="text-[10px] text-neutral-500 font-mono">
+                      {unreadCount > 0
+                        ? `${unreadCount} unread alert${unreadCount > 1 ? "s" : ""}`
+                        : "All notices acknowledged"}
+                    </p>
+                  </div>
+                </div>
+
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center space-x-1"
+                  >
+                    <CheckCheck className="w-3.5 h-3.5" />
+                    <span>Mark all read</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Directives Body List */}
+              <div className="max-h-80 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800/80">
+                {announcements.length > 0 ? (
+                  announcements.map((ann) => {
+                    const isUnread = !readAnnouncementIds.includes(ann.id);
+                    return (
+                      <div
+                        key={ann.id}
+                        onClick={() => markOneAsRead(ann.id)}
+                        className={`p-4 transition cursor-pointer ${
+                          isUnread
+                            ? "bg-amber-500/[0.04] dark:bg-amber-500/[0.06] hover:bg-neutral-100 dark:hover:bg-neutral-800/80"
+                            : "hover:bg-neutral-50 dark:hover:bg-neutral-800/50 opacity-80"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase font-mono tracking-wider ${
+                                ann.priority === "exam"
+                                  ? "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200/60"
+                                  : ann.priority === "urgent"
+                                  ? "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 border border-amber-200/60"
+                                  : "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 border border-blue-200/60"
+                              }`}
+                            >
+                              {ann.priority === "exam"
+                                ? "Exam Directive"
+                                : ann.priority === "urgent"
+                                ? "Urgent Alert"
+                                : "Department Notice"}
+                            </span>
+                            {ann.unitTag && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-semibold">
+                                Unit 0{ann.unitTag}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center space-x-1.5 text-[10px] text-neutral-400 font-mono shrink-0">
+                            <span>{ann.date}</span>
+                            {isUnread && (
+                              <span
+                                className="w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-neutral-900"
+                                title="Unread Directive"
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        <h5 className="text-xs font-bold text-neutral-900 dark:text-white leading-snug">
+                          {ann.title}
+                        </h5>
+
+                        <p className="text-[11px] text-neutral-600 dark:text-neutral-300 mt-1 leading-relaxed">
+                          {ann.content}
+                        </p>
+
+                        <div className="mt-2 text-[10px] text-neutral-400 font-mono flex items-center justify-between">
+                          <span>
+                            From: {ann.author} ({ann.authorRole})
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="p-8 text-center text-xs text-neutral-400 space-y-1">
+                    <Bell className="w-6 h-6 mx-auto opacity-40 text-neutral-400" />
+                    <p className="font-semibold text-neutral-600 dark:text-neutral-300">
+                      No Active Directives
+                    </p>
+                    <p className="text-[11px] text-neutral-400">
+                      Faculty broadcasts and examination alerts will appear here.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Dropdown Footer */}
+              <div className="p-2.5 bg-neutral-50/80 dark:bg-neutral-950/60 border-t border-neutral-200/80 dark:border-neutral-800 text-center text-[10px] text-neutral-400 font-mono">
+                Synchronized with ANITS Autonomous Examination Broadcasts
+              </div>
+            </div>
+          )}
+        </div>
 
         <ThemeToggle />
 

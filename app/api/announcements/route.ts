@@ -17,24 +17,31 @@ export async function GET(request: NextRequest) {
         .limit(50)
         .lean();
 
-      return NextResponse.json({
-        success: true,
-        announcements: announcements.map((a: any) => ({
-          id: a._id.toString(),
-          title: a.title,
-          content: a.content,
-          priority: a.priority,
-          author: a.authorName,
-          authorRole: a.authorRole || "Course Faculty",
-          date: new Date(a.createdAt).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          }),
-          unitTag: a.unitTag,
-          isPublished: a.isPublished,
-        })),
-      });
+      return NextResponse.json(
+        {
+          success: true,
+          announcements: announcements.map((a: any) => ({
+            id: a._id.toString(),
+            title: a.title,
+            content: a.content,
+            priority: a.priority,
+            author: a.authorName,
+            authorRole: a.authorRole || "Course Faculty",
+            date: new Date(a.createdAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+            unitTag: a.unitTag,
+            isPublished: a.isPublished,
+          })),
+        },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30",
+          },
+        }
+      );
     } catch {
       return NextResponse.json({
         success: true,

@@ -32,10 +32,16 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   }
 
   if (!cached!.promise) {
-    const opts = {
+    const opts: mongoose.ConnectOptions = {
       bufferCommands: false,
-      maxPoolSize: 10,
+      maxPoolSize: 100, // Handle high concurrent student & faculty requests without starvation
+      minPoolSize: 10, // Maintain warm connection pool to eliminate TCP/TLS latency spikes
       serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+      heartbeatFrequencyMS: 10000,
+      maxIdleTimeMS: 30000,
+      autoIndex: process.env.NODE_ENV !== "production", // Avoid blocking boots on production
     };
 
     cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {

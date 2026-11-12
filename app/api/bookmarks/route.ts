@@ -48,36 +48,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const cleanItemId = String(itemId || url);
+
     try {
       await connectToDatabase();
-      const validItemId = mongoose.Types.ObjectId.isValid(itemId)
-        ? new mongoose.Types.ObjectId(itemId)
-        : new mongoose.Types.ObjectId();
-
       const bookmark = await Bookmark.findOneAndUpdate(
         {
           userId: session.user.id,
-          itemType,
-          itemId: validItemId,
+          $or: [{ itemId: cleanItemId }, { url }],
         },
         {
           userId: session.user.id,
           itemType,
-          itemId: validItemId,
-          unitNumber,
+          itemId: cleanItemId,
+          unitNumber: Number(unitNumber),
           title: title.trim(),
           subtitle: subtitle?.trim(),
           url,
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true, setDefaultsOnInsert: true }
       );
 
       return NextResponse.json({ success: true, bookmark }, { status: 201 });
-    } catch {
-      return NextResponse.json({
-        success: true,
-        bookmark: { id: `local-${Date.now()}`, itemType, unitNumber, title, url },
-      });
+    } catch (err: any) {
+      console.error("Error creating bookmark:", err);
+      return NextResponse.json({ success: false, error: err.message }, { status: 500 });
     }
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -96,26 +91,42 @@ export async function DELETE(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+    const itemId = searchParams.get("itemId");
     const url = searchParams.get("url");
 
-    if (!id && !url) {
+    if (!id && !itemId && !url) {
       return NextResponse.json(
-        { success: false, message: "Bookmark ID or URL is required" },
+        { success: false, message: "Bookmark ID, itemId, or URL is required" },
         { status: 400 }
       );
     }
 
     try {
       await connectToDatabase();
+
+      const orConditions: any[] = [];
+      if (id && mongoose.Types.ObjectId.isValid(id)) {
+        orConditions.push({ _id: id });
+      }
       if (id) {
-        await Bookmark.findOneAndDelete({ _id: id, userId: session.user.id });
-      } else if (url) {
-        await Bookmark.findOneAndDelete({ url, userId: session.user.id });
+        orConditions.push({ itemId: id });
+      }
+      if (itemId) {
+        orConditions.push({ itemId });
+      }
+      if (url) {
+        orConditions.push({ url });
       }
 
+      await Bookmark.deleteMany({
+        userId: session.user.id,
+        $or: orConditions,
+      });
+
       return NextResponse.json({ success: true, message: "Bookmark removed" });
-    } catch {
-      return NextResponse.json({ success: true, message: "Removed from session" });
+    } catch (err: any) {
+      console.error("Error deleting bookmark:", err);
+      return NextResponse.json({ success: false, error: err.message }, { status: 500 });
     }
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

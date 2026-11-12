@@ -51,9 +51,14 @@ export default function TopicReaderPage() {
 
     try {
       if (!nextState) {
-        await fetch(`/api/bookmarks?url=${encodeURIComponent(currentUrl)}`, {
-          method: "DELETE",
-        });
+        await fetch(
+          `/api/bookmarks?url=${encodeURIComponent(
+            currentUrl
+          )}&itemId=${encodeURIComponent(topic?.id || "")}`,
+          {
+            method: "DELETE",
+          }
+        );
       } else if (topic) {
         await fetch("/api/bookmarks", {
           method: "POST",

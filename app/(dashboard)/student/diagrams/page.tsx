@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Image as ImageIcon,
@@ -20,6 +20,55 @@ export default function DiagramGalleryPage() {
   const [selectedType, setSelectedType] = useState<string>("all");
   const [activeLightboxDiagram, setActiveLightboxDiagram] =
     useState<DiagramMetadata | null>(null);
+  const [bookmarkedDiagramIds, setBookmarkedDiagramIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/bookmarks")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.bookmarks)) {
+          const ids = data.bookmarks
+            .filter((b: any) => b.itemType === "diagram")
+            .map((b: any) => String(b.itemId || b._id));
+          setBookmarkedDiagramIds(ids);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleToggleBookmark = async (diagram: DiagramMetadata) => {
+    const dIdStr = String(diagram.id);
+    const isSaved = bookmarkedDiagramIds.includes(dIdStr);
+    const url = `/student/diagrams`;
+
+    if (isSaved) {
+      setBookmarkedDiagramIds((prev) => prev.filter((id) => id !== dIdStr));
+      try {
+        await fetch(
+          `/api/bookmarks?itemId=${encodeURIComponent(
+            dIdStr
+          )}&id=${encodeURIComponent(dIdStr)}`,
+          { method: "DELETE" }
+        );
+      } catch {}
+    } else {
+      setBookmarkedDiagramIds((prev) => [...prev, dIdStr]);
+      try {
+        await fetch("/api/bookmarks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            itemType: "diagram",
+            itemId: dIdStr,
+            unitNumber: 4,
+            title: `${diagram.domain} - ${diagram.title}`,
+            subtitle: diagram.description,
+            url,
+          }),
+        });
+      } catch {}
+    }
+  };
 
   const filteredDiagrams = REFERENCE_DIAGRAMS.filter((d) => {
     const matchesDomain =
@@ -111,6 +160,8 @@ export default function DiagramGalleryPage() {
           <DiagramReferenceCard
             key={diagram.id}
             diagram={diagram}
+            isBookmarked={bookmarkedDiagramIds.includes(String(diagram.id))}
+            onToggleBookmark={handleToggleBookmark}
             onPreview={(d) => setActiveLightboxDiagram(d)}
             onOpenInStudio={handleOpenInStudio}
           />

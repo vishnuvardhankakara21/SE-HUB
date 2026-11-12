@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface IBookmark extends Document {
   userId: mongoose.Types.ObjectId;
   itemType: "topic" | "question" | "diagram";
-  itemId: mongoose.Types.ObjectId;
+  itemId: string;
   unitNumber: number;
   title: string;
   subtitle?: string;
@@ -20,7 +20,7 @@ const BookmarkSchema = new Schema<IBookmark>(
       required: true,
       index: true,
     },
-    itemId: { type: Schema.Types.ObjectId, required: true },
+    itemId: { type: String, required: true, index: true },
     unitNumber: { type: Number, required: true },
     title: { type: String, required: true },
     subtitle: { type: String },
@@ -30,6 +30,7 @@ const BookmarkSchema = new Schema<IBookmark>(
 );
 
 BookmarkSchema.index({ userId: 1, itemType: 1, itemId: 1 }, { unique: true });
+BookmarkSchema.index({ userId: 1, url: 1 });
 
 export const Bookmark: Model<IBookmark> =
   mongoose.models.Bookmark || mongoose.model<IBookmark>("Bookmark", BookmarkSchema);

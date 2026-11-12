@@ -3,19 +3,23 @@
 import React from "react";
 import Image from "next/image";
 import { DiagramMetadata } from "@/lib/data/diagrams";
-import { Maximize2, Download, PenTool, Layers } from "lucide-react";
+import { Maximize2, Download, PenTool, Layers, Bookmark } from "lucide-react";
 import { Card3D } from "@/components/ui/Card3D";
 
 interface DiagramReferenceCardProps {
   diagram: DiagramMetadata;
+  isBookmarked?: boolean;
   onPreview: (diagram: DiagramMetadata) => void;
   onOpenInStudio: (diagram: DiagramMetadata) => void;
+  onToggleBookmark?: (diagram: DiagramMetadata) => void;
 }
 
 export function DiagramReferenceCard({
   diagram,
+  isBookmarked = false,
   onPreview,
   onOpenInStudio,
+  onToggleBookmark,
 }: DiagramReferenceCardProps) {
   const getDomainColor = (domain: string) => {
     switch (domain) {
@@ -86,22 +90,46 @@ export function DiagramReferenceCard({
       {/* Card Body */}
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
-          {/* Badges */}
-          <div className="flex items-center space-x-2 mb-2">
-            <span
-              className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${getDomainColor(
-                diagram.domain
-              )}`}
-            >
-              {diagram.domain} System
-            </span>
-            <span
-              className={`text-[11px] font-medium px-2 py-0.5 rounded-md border ${getTypeBadge(
-                diagram.diagramType
-              )}`}
-            >
-              {diagram.diagramType}
-            </span>
+          {/* Badges & Bookmark */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-1.5">
+              <span
+                className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${getDomainColor(
+                  diagram.domain
+                )}`}
+              >
+                {diagram.domain} System
+              </span>
+              <span
+                className={`text-[11px] font-medium px-2 py-0.5 rounded-md border ${getTypeBadge(
+                  diagram.diagramType
+                )}`}
+              >
+                {diagram.diagramType}
+              </span>
+            </div>
+
+            {onToggleBookmark && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleBookmark(diagram);
+                }}
+                className={`p-1.5 rounded-lg transition ${
+                  isBookmarked
+                    ? "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400"
+                    : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+                title={isBookmarked ? "Remove Bookmark" : "Bookmark Diagram"}
+                aria-label="Bookmark Diagram"
+              >
+                <Bookmark
+                  className="w-3.5 h-3.5"
+                  fill={isBookmarked ? "currentColor" : "none"}
+                />
+              </button>
+            )}
           </div>
 
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug line-clamp-1">

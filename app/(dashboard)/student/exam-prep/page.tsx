@@ -50,7 +50,10 @@ function ExamPrepView() {
 
     try {
       if (isCurrentlyBookmarked) {
-        await fetch(`/api/bookmarks?id=${id}`, { method: "DELETE" });
+        await fetch(
+          `/api/bookmarks?itemId=${encodeURIComponent(id)}&id=${encodeURIComponent(id)}`,
+          { method: "DELETE" }
+        );
       } else {
         await fetch("/api/bookmarks", {
           method: "POST",

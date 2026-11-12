@@ -1,21 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Image as ImageIcon,
-  PenTool,
-  Filter,
-  Layers,
-  ArrowRight,
-  Download,
-} from "lucide-react";
 import { REFERENCE_DIAGRAMS, DiagramMetadata } from "@/lib/data/diagrams";
 import { DiagramReferenceCard } from "@/components/diagrams/DiagramReferenceCard";
 import { DiagramLightbox } from "@/components/diagrams/DiagramLightbox";
 
 export default function DiagramGalleryPage() {
-  const router = useRouter();
   const [selectedDomain, setSelectedDomain] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [activeLightboxDiagram, setActiveLightboxDiagram] =
@@ -78,15 +68,6 @@ export default function DiagramGalleryPage() {
     return matchesDomain && matchesType;
   });
 
-  const handleOpenInStudio = (diagram: DiagramMetadata) => {
-    // Navigate to studio with template parameter
-    router.push(
-      `/student/diagrams/studio?template=${diagram.templateId}&title=${encodeURIComponent(
-        diagram.title
-      )}`
-    );
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in duration-300 pb-16">
       {/* Header */}
@@ -96,8 +77,8 @@ export default function DiagramGalleryPage() {
         </h1>
         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
           Complete collection of Unit-IV UML behavioral and structural
-          diagrams across 4 real-world systems. Inspect, download, or launch
-          directly into the drawing studio as editable diagrams.
+          diagrams across 4 real-world systems. Enlarge, inspect high-resolution
+          architectures, download PNGs, and save to bookmarks for rapid semester exam revision.
         </p>
       </div>
 
@@ -163,7 +144,6 @@ export default function DiagramGalleryPage() {
             isBookmarked={bookmarkedDiagramIds.includes(String(diagram.id))}
             onToggleBookmark={handleToggleBookmark}
             onPreview={(d) => setActiveLightboxDiagram(d)}
-            onOpenInStudio={handleOpenInStudio}
           />
         ))}
       </div>
@@ -172,7 +152,6 @@ export default function DiagramGalleryPage() {
       <DiagramLightbox
         diagram={activeLightboxDiagram}
         onClose={() => setActiveLightboxDiagram(null)}
-        onOpenInStudio={handleOpenInStudio}
       />
     </div>
   );

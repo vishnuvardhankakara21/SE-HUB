@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Upload,
@@ -32,6 +32,10 @@ import {
   Sparkles,
   Download,
   Calendar,
+  HardDrive,
+  Link2,
+  AlertCircle,
+  FileUp,
 } from "lucide-react";
 import {
   FacultyResourceItem,
@@ -45,6 +49,7 @@ import { useSession } from "next-auth/react";
 import { StudentRosterSection } from "@/components/teacher/StudentRosterSection";
 import type { StudentStatsItem } from "@/app/api/teacher/students/route";
 import { Card3D } from "@/components/ui/Card3D";
+import { formatAnswerMarkdown } from "@/lib/format-answer-markdown";
 
 export default function TeacherDashboardPage() {
   const { role, isLoaded, logout } = useAuth();
@@ -76,11 +81,16 @@ export default function TeacherDashboardPage() {
   const [resourceSearch, setResourceSearch] = useState("");
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  // New Resource Form
+  // New Resource Form & PC/Drive Upload state
+  const [uploadMode, setUploadMode] = useState<"file" | "drive">("file");
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [newUnit, setNewUnit] = useState(1);
-  const [newType, setNewType] = useState<"pdf" | "ppt" | "video_link" | "image" | "xml">("pdf");
+  const [newType, setNewType] = useState<"pdf" | "ppt" | "video_link" | "image" | "doc">("pdf");
   const [newUrl, setNewUrl] = useState("");
   const [newSize, setNewSize] = useState("2.5 MB");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -211,13 +221,80 @@ export default function TeacherDashboardPage() {
     }
   };
 
+  const resetUploadForm = () => {
+    setNewTitle("");
+    setNewDesc("");
+    setNewUrl("");
+    setSelectedFile(null);
+    setUploadError(null);
+    setNewSize("2.5 MB");
+    setUploadMode("file");
+    setIsDragging(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      if (!newTitle.trim()) {
+        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+        setNewTitle(nameWithoutExt);
+      }
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      setNewSize(`${sizeMb} MB`);
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      if (ext === "pdf") setNewType("pdf");
+      else if (ext === "ppt" || ext === "pptx") setNewType("ppt");
+      else if (ext === "doc" || ext === "docx") setNewType("doc");
+      else if (["jpg", "jpeg", "png", "webp"].includes(ext || "")) setNewType("image");
+      setUploadError(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      if (!newTitle.trim()) {
+        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+        setNewTitle(nameWithoutExt);
+      }
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      setNewSize(`${sizeMb} MB`);
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      if (ext === "pdf") setNewType("pdf");
+      else if (ext === "ppt" || ext === "pptx") setNewType("ppt");
+      else if (ext === "doc" || ext === "docx") setNewType("doc");
+      else if (["jpg", "jpeg", "png", "webp"].includes(ext || "")) setNewType("image");
+      setUploadError(null);
+    }
+  };
+
   const handleCreateResource = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle.trim()) return;
+    setUploadError(null);
+
+    if (!newTitle.trim()) {
+      setUploadError("Please provide a title for the course material.");
+      return;
+    }
+
+    if (uploadMode === "file" && !selectedFile) {
+      setUploadError("Please select a file from your PC (PDF, PPT, Word, image up to 25MB).");
+      return;
+    }
+
+    if (uploadMode === "drive" && !newUrl.trim()) {
+      setUploadError("Please provide a valid Google Drive, OneDrive, or document URL.");
+      return;
+    }
 
     setIsUploading(true);
     try {
-      if (selectedFile) {
+      if (uploadMode === "file" && selectedFile) {
         const formData = new FormData();
         formData.append("file", selectedFile);
         formData.append("title", newTitle.trim());
@@ -231,16 +308,21 @@ export default function TeacherDashboardPage() {
         });
         const data = await res.json();
         if (data.success && data.resource) {
-          setResources([data.resource, ...resources]);
+          setResources((prev) => [data.resource, ...prev]);
+          setTelemetry((t) => ({ ...t, totalResources: t.totalResources + 1 }));
+          setShowUploadModal(false);
+          resetUploadForm();
+        } else {
+          setUploadError(data.message || "Failed to upload file. Please check format and size.");
         }
-      } else if (newUrl.trim()) {
+      } else if (uploadMode === "drive" && newUrl.trim()) {
         const payload = {
           title: newTitle.trim(),
           description: newDesc.trim(),
           unitNumber: newUnit,
           resourceType: newType,
           fileUrl: newUrl.trim(),
-          fileSize: newSize,
+          fileSize: newSize || "Cloud Link",
         };
 
         const res = await fetch("/api/resources", {
@@ -250,17 +332,16 @@ export default function TeacherDashboardPage() {
         });
         const data = await res.json();
         if (data.success && data.resource) {
-          setResources([data.resource, ...resources]);
+          setResources((prev) => [data.resource, ...prev]);
+          setTelemetry((t) => ({ ...t, totalResources: t.totalResources + 1 }));
+          setShowUploadModal(false);
+          resetUploadForm();
+        } else {
+          setUploadError(data.error || data.message || "Failed to save cloud resource.");
         }
       }
-
-      setShowUploadModal(false);
-      setNewTitle("");
-      setNewDesc("");
-      setNewUrl("");
-      setSelectedFile(null);
-    } catch {
-      // Handled gracefully
+    } catch (err: any) {
+      setUploadError(err.message || "Network error. Please try again.");
     } finally {
       setIsUploading(false);
     }
@@ -924,9 +1005,12 @@ export default function TeacherDashboardPage() {
                         <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                           Complete 6-Mark Model Solution
                         </div>
-                        <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-sans bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
-                          {q.answerMarkdown}
-                        </div>
+                        <div
+                          className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-sans bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800/60 space-y-2"
+                          dangerouslySetInnerHTML={{
+                            __html: formatAnswerMarkdown(q.answerMarkdown),
+                          }}
+                        />
                       </div>
 
                       {q.examTips && (
@@ -1426,6 +1510,326 @@ export default function TeacherDashboardPage() {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Upload Material Modal (File Browse from PC & Cloud / Drive Link) */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/40">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                  <Upload className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Upload Course Material
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Publish learning notes, slide decks, or syllabus guides for students.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowUploadModal(false);
+                  resetUploadForm();
+                }}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleCreateResource} className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+              {/* Tab Selector: Browse PC vs Cloud Link */}
+              <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUploadMode("file");
+                    setUploadError(null);
+                  }}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 ${
+                    uploadMode === "file"
+                      ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                      : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  }`}
+                >
+                  <HardDrive className="w-4 h-4 text-amber-500" />
+                  <span>Browse from PC</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUploadMode("drive");
+                    setUploadError(null);
+                  }}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 ${
+                    uploadMode === "drive"
+                      ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                      : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  }`}
+                >
+                  <Link2 className="w-4 h-4 text-blue-500" />
+                  <span>Google Drive / Cloud Link</span>
+                </button>
+              </div>
+
+              {/* TAB 1: File Browse & Drag-Drop */}
+              {uploadMode === "file" && (
+                <div className="space-y-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.ppt,.pptx,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+
+                  {selectedFile ? (
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+                      <div className="flex items-center space-x-3 truncate">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-bold flex items-center justify-center shrink-0">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div className="truncate">
+                          <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                            {selectedFile.name}
+                          </div>
+                          <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                            {newSize} • Ready to upload
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition"
+                        >
+                          Change
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedFile(null);
+                            if (fileInputRef.current) fileInputRef.current.value = "";
+                          }}
+                          className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition"
+                          title="Remove file"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                      }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`p-6 sm:p-8 rounded-2xl border-2 border-dashed text-center cursor-pointer transition flex flex-col items-center justify-center space-y-2 ${
+                        isDragging
+                          ? "border-amber-500 bg-amber-500/10"
+                          : "border-slate-300 dark:border-slate-700 hover:border-amber-500/60 hover:bg-slate-50 dark:hover:bg-slate-950/40"
+                      }`}
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                        <FileUp className="w-6 h-6" />
+                      </div>
+                      <div className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                        Click to browse or drag & drop files here
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
+                        Supports PDF, PowerPoint (.ppt, .pptx), Word (.doc, .docx), and diagrams/images up to 25MB.
+                      </p>
+                      <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 font-semibold border border-slate-200 dark:border-slate-700">
+                        Direct Local Storage Upload
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 2: Cloud / Drive Link */}
+              {uploadMode === "drive" && (
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Cloud File URL / Drive Link <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Link2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="url"
+                        value={newUrl}
+                        onChange={(e) => {
+                          setNewUrl(e.target.value);
+                          setUploadError(null);
+                        }}
+                        placeholder="https://drive.google.com/file/d/... or OneDrive / Dropbox link"
+                        className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      Make sure link sharing is set to &quot;Anyone with the link can view&quot;.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        Resource Format
+                      </label>
+                      <select
+                        value={newType}
+                        onChange={(e) => setNewType(e.target.value as any)}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      >
+                        <option value="pdf">PDF Document</option>
+                        <option value="ppt">PowerPoint Presentation (.pptx)</option>
+                        <option value="doc">Word Document (.docx)</option>
+                        <option value="video_link">Video Lecture Link</option>
+                        <option value="image">Diagram / Image</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        Estimated Size (Display)
+                      </label>
+                      <input
+                        type="text"
+                        value={newSize}
+                        onChange={(e) => setNewSize(e.target.value)}
+                        placeholder="e.g. 5.4 MB or Google Drive"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Common Fields: Title, Unit, Description */}
+              <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Material Title <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newTitle}
+                    onChange={(e) => {
+                      setNewTitle(e.target.value);
+                      setUploadError(null);
+                    }}
+                    placeholder="e.g. Unit 3 Software Architecture & Kruchten 4+1 View Notes"
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-medium"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Target Curriculum Unit
+                    </label>
+                    <select
+                      value={newUnit}
+                      onChange={(e) => setNewUnit(parseInt(e.target.value, 10))}
+                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    >
+                      <option value={1}>Unit 1: Process Models & Agile</option>
+                      <option value={2}>Unit 2: Requirements & Design Concepts</option>
+                      <option value={3}>Unit 3: Software Architecture & UML</option>
+                      <option value={4}>Unit 4: OO Methodologies & Metrics</option>
+                      <option value={5}>Unit 5: Testing & Project Management</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      File Format Tag
+                    </label>
+                    <select
+                      value={newType}
+                      onChange={(e) => setNewType(e.target.value as any)}
+                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    >
+                      <option value="pdf">PDF Document</option>
+                      <option value="ppt">PowerPoint Presentation</option>
+                      <option value="doc">Word Document</option>
+                      <option value="video_link">Video Lecture</option>
+                      <option value="image">Diagram / Schema</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Brief Description / Instructions for Students
+                  </label>
+                  <textarea
+                    value={newDesc}
+                    onChange={(e) => setNewDesc(e.target.value)}
+                    placeholder="Provide context, page references, or reading guidance for examination preparation..."
+                    rows={2}
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Error Alert */}
+              {uploadError && (
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-start space-x-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{uploadError}</span>
+                </div>
+              )}
+
+              {/* Modal Actions */}
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    resetUploadForm();
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  disabled={isUploading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploading}
+                  className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center space-x-2"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Uploading Material...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4" />
+                      <span>Publish to Student Portal</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

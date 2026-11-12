@@ -4,11 +4,9 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   Sparkles,
-  BookOpen,
   GraduationCap,
   Copy,
   Check,
-  ArrowRight,
   HelpCircle,
   Cpu,
   Layers,
@@ -170,6 +168,28 @@ export default function AiAssistantPage() {
       .replace(/\\_/g, "_");
   };
 
+  // Helper to render inline markdown (bold **text**, inline code `code`, clean math)
+  const renderInlineSpans = (rawText: string) => {
+    const parts = rawText.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return (
+          <strong key={idx} className="font-bold text-neutral-900 dark:text-white">
+            {cleanMathSymbols(part.slice(2, -2))}
+          </strong>
+        );
+      }
+      if (part.startsWith("`") && part.endsWith("`")) {
+        return (
+          <code key={idx} className="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 font-mono text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+            {part.slice(1, -1)}
+          </code>
+        );
+      }
+      return <span key={idx}>{cleanMathSymbols(part)}</span>;
+    });
+  };
+
   // Clean Markdown & Math renderer
   const renderFormattedMarkdown = (content: string) => {
     const paragraphs = content.split(/\n\n+/);
@@ -178,13 +198,29 @@ export default function AiAssistantPage() {
       const trimmed = para.trim();
       if (!trimmed) return null;
 
+      // Code blocks / ASCII Architecture Models
+      if (trimmed.startsWith("```") && trimmed.endsWith("```")) {
+        const code = trimmed.replace(/^```[a-z0-9_-]*\n?/, "").replace(/\n?```$/, "");
+        return (
+          <pre
+            key={pIdx}
+            className="p-4 rounded-2xl bg-neutral-950 text-emerald-400 font-mono text-xs border border-neutral-800 overflow-x-auto whitespace-pre leading-relaxed my-3 shadow-inner select-all"
+          >
+            {code}
+          </pre>
+        );
+      }
+
       // Header 3 or 2
       if (trimmed.startsWith("###") || trimmed.startsWith("##")) {
-        const title = cleanMathSymbols(trimmed.replace(/^#+\s*/, ""));
+        const title = cleanMathSymbols(trimmed.replace(/^#+\s*/, "").replace(/\*\*(.*?)\*\*/g, "$1"));
         return (
-          <h5 key={pIdx} className="text-sm font-bold text-neutral-900 dark:text-white pt-2 pb-1 border-b border-neutral-100 dark:border-neutral-800">
-            {title}
-          </h5>
+          <div key={pIdx} className="pt-2 pb-1 border-b border-neutral-100 dark:border-neutral-800 flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <h5 className="text-sm font-bold text-neutral-900 dark:text-white">
+              {title}
+            </h5>
+          </div>
         );
       }
 
@@ -226,7 +262,7 @@ export default function AiAssistantPage() {
             r
               .split("|")
               .filter((c, i, a) => i > 0 && i < a.length - 1)
-              .map((c) => cleanMathSymbols(c.trim()))
+              .map((c) => c.trim())
           );
 
           return (
@@ -246,7 +282,7 @@ export default function AiAssistantPage() {
                     <tr key={rIdx} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
                       {cols.map((col, cIdx) => (
                         <td key={cIdx} className="p-2.5 text-neutral-700 dark:text-neutral-300">
-                          {col}
+                          {renderInlineSpans(col)}
                         </td>
                       ))}
                     </tr>
@@ -259,17 +295,16 @@ export default function AiAssistantPage() {
       }
 
       // Bullet points
-      if (trimmed.includes("\n- ") || trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      if (trimmed.includes("\n- ") || trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
         const lines = trimmed.split("\n").filter(Boolean);
         return (
-          <ul key={pIdx} className="space-y-1.5 my-2 pl-2">
+          <ul key={pIdx} className="space-y-1.5 my-2 pl-1">
             {lines.map((line, lIdx) => {
-              const cleanLine = line.replace(/^[-*]\s*/, "");
-              const formattedLine = cleanMathSymbols(cleanLine.replace(/\*\*(.*?)\*\*/g, "$1"));
+              const cleanLine = line.replace(/^[-*•]\s*/, "");
               return (
-                <li key={lIdx} className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 flex items-start space-x-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                  <span>{formattedLine}</span>
+                <li key={lIdx} className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 flex items-start space-x-2 leading-relaxed">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
+                  <span className="flex-1">{renderInlineSpans(cleanLine)}</span>
                 </li>
               );
             })}
@@ -281,21 +316,33 @@ export default function AiAssistantPage() {
       if (/^\d+\.\s/.test(trimmed)) {
         const lines = trimmed.split("\n").filter(Boolean);
         return (
-          <ol key={pIdx} className="space-y-1.5 my-2 pl-2 list-decimal list-inside text-xs sm:text-sm text-neutral-700 dark:text-neutral-300">
-            {lines.map((line, lIdx) => (
-              <li key={lIdx} className="leading-relaxed">
-                {cleanMathSymbols(line.replace(/^\d+\.\s*/, "").replace(/\*\*(.*?)\*\*/g, "$1"))}
-              </li>
-            ))}
-          </ol>
+          <div key={pIdx} className="space-y-1.5 my-2">
+            {lines.map((line, lIdx) => {
+              const numMatch = line.match(/^(\d+)\.\s+(.*)$/);
+              if (numMatch) {
+                return (
+                  <div key={lIdx} className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 flex items-start space-x-2 leading-relaxed">
+                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs shrink-0 mt-0.5 px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 rounded border border-emerald-500/20">
+                      {numMatch[1]}
+                    </span>
+                    <span className="flex-1">{renderInlineSpans(numMatch[2])}</span>
+                  </div>
+                );
+              }
+              return (
+                <div key={lIdx} className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 pl-4 leading-relaxed">
+                  {renderInlineSpans(line)}
+                </div>
+              );
+            })}
+          </div>
         );
       }
 
-      // Standard text with bold cleaning and math symbol cleanup
-      const cleanPara = cleanMathSymbols(trimmed.replace(/\*\*(.*?)\*\*/g, "$1"));
+      // Standard text with bold, code, and clean math
       return (
-        <p key={pIdx} className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
-          {cleanPara}
+        <p key={pIdx} className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed my-1.5">
+          {renderInlineSpans(trimmed)}
         </p>
       );
     });
@@ -512,18 +559,9 @@ export default function AiAssistantPage() {
                   </div>
 
                   <div className="flex items-center space-x-2 shrink-0 self-start sm:self-center">
-                    {item.data.unitNumber && (
-                      <Link
-                        href={`/student/learn/${item.data.unitNumber}`}
-                        className="px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-semibold text-neutral-700 dark:text-neutral-300 transition flex items-center space-x-1"
-                      >
-                        <BookOpen className="w-3.5 h-3.5" />
-                        <span>Unit Notes</span>
-                      </Link>
-                    )}
                     <button
                       onClick={() => handleCopy(item.id, `${item.data.title}\n\nDefinition:\n${item.data.definition}\n\nModel Answer:\n${item.data.fullModelAnswer}\n\nMarking Scheme:\n${item.data.markingScheme}`)}
-                      className="px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-xs font-bold transition flex items-center space-x-1.5 shadow-xs"
+                      className="px-3.5 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-xs font-bold transition flex items-center space-x-1.5 shadow-xs"
                       title="Copy Model Solution"
                     >
                       {copiedId === item.id ? (
@@ -623,32 +661,14 @@ export default function AiAssistantPage() {
                   </div>
 
                   {/* Diagram Recommendation */}
-                  <div className="p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-950/30 space-y-2 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center space-x-2 text-xs font-bold text-neutral-700 dark:text-neutral-300 font-mono uppercase tracking-wider">
-                        <PenTool className="w-4 h-4 text-emerald-500" />
-                        <span>Recommended Diagram</span>
-                      </div>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed mt-1">
-                        {item.data.diagramRecommendation || "Draw corresponding standard UML diagram."}
-                      </p>
+                  <div className="p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-950/30 space-y-1.5 flex flex-col justify-center">
+                    <div className="flex items-center space-x-2 text-xs font-bold text-neutral-700 dark:text-neutral-300 font-mono uppercase tracking-wider">
+                      <PenTool className="w-4 h-4 text-emerald-500" />
+                      <span>Recommended Diagram</span>
                     </div>
-                    <div className="flex items-center space-x-2 pt-1">
-                      <Link
-                        href="/student/diagrams/studio"
-                        className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center space-x-1"
-                      >
-                        <span>Open Drawing Studio</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
-                      <span className="text-neutral-300 dark:text-neutral-700">•</span>
-                      <Link
-                        href="/student/diagrams"
-                        className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-400 hover:underline flex items-center space-x-1"
-                      >
-                        <span>16 Reference Diagrams</span>
-                      </Link>
-                    </div>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                      {item.data.diagramRecommendation || "Draw corresponding standard UML diagram."}
+                    </p>
                   </div>
                 </div>
 

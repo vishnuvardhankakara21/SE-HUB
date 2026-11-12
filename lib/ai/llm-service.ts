@@ -30,6 +30,31 @@ MATHEMATICAL & FORMULA NOTATION RULES (CRITICAL):
   * Function Points (FP) = UFP × [0.65 + 0.01 × Sum(Fi)]
 - Always define every variable immediately below the formula with clear units.
 
+CRITICAL ARCHITECTURAL DIAGRAM RULES:
+- Always generate a clean, symmetrical ASCII diagram in "diagramAscii" whenever the question relates to an SDLC model, architecture, design pattern, UML diagram, DFD, CFG, or testing workflow.
+- Diagram MUST use uniform, clean box borders (+-----------------------+ and |                       |).
+- Use clear centered directional flow arrows (v, |, ---->).
+- Center text inside boxes and ensure all box widths and vertical lines align perfectly without wrapping.
+- Example of correct ASCII alignment:
+  +-------------------------------+
+  |    Requirements Analysis      |
+  +-------------------------------+
+                  |
+                  v
+  +-------------------------------+
+  |        System Design          |
+  +-------------------------------+
+                  |
+                  v
+  +-------------------------------+
+  |    Implementation & Coding    |
+  +-------------------------------+
+                  |
+                  v
+  +-------------------------------+
+  |     Testing & Verification    |
+  +-------------------------------+
+
 You MUST respond strictly with a valid JSON object (no markdown code fence, no additional commentary) matching this exact JSON schema:
 {
   "title": "Concise Question Title",

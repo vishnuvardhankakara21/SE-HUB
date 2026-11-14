@@ -164,7 +164,7 @@ export default function LandingPage() {
 
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-neutral-900 dark:text-white max-w-4xl mx-auto leading-[1.08]">
               Software Engineering <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 via-neutral-700 to-neutral-500 dark:from-white dark:via-neutral-200 dark:to-neutral-400">
+              <span className="text-neutral-900 dark:text-neutral-100">
                 Interactive Learning Platform
               </span>
             </h1>
@@ -175,15 +175,15 @@ export default function LandingPage() {
 
             {/* Mandatory Authentication Actions */}
             <div className="flex flex-wrap items-center justify-center gap-4 pt-2 pointer-events-auto">
-              <Link href="/login" tabIndex={-1}>
-                <ShinyButton className="shadow-lg hover:shadow-emerald-500/20 text-sm sm:text-base font-bold">
+              <Link href="/login" className="focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full">
+                <ShinyButton as="span" className="shadow-lg hover:shadow-emerald-500/20 text-sm sm:text-base font-bold">
                   <span>Sign In to Access Platform</span>
                   <ArrowRight className="ml-1.5 w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </ShinyButton>
               </Link>
 
-              <Link href="/register" tabIndex={-1}>
-                <ShinyButton className="shadow-md text-sm sm:text-base font-semibold opacity-95 hover:opacity-100">
+              <Link href="/register" className="focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full">
+                <ShinyButton as="span" className="shadow-md text-sm sm:text-base font-semibold opacity-95 hover:opacity-100">
                   <span>Create Institutional Account</span>
                 </ShinyButton>
               </Link>
@@ -195,10 +195,10 @@ export default function LandingPage() {
               </span>
             </div>
 
-            {/* Lightfall Warp / Mouse Interaction Instruction */}
+            {/* Interactive Grid Instruction */}
             <div className="pt-3">
               <span className="inline-block text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full bg-neutral-200/50 dark:bg-neutral-900/50 backdrop-blur text-neutral-500 dark:text-neutral-400">
-                Hold click to warp light trails • Move cursor to bend streaks
+                Interactive Architecture Matrix • Hover & Click Grid Cells
               </span>
             </div>
           </div>

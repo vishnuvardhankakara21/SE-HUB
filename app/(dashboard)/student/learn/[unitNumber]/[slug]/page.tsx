@@ -17,6 +17,7 @@ import {
   Video,
 } from "lucide-react";
 import { TOPICS_DATA, UNITS_DATA } from "@/lib/data/curriculum";
+import { formatAnswerMarkdown } from "@/lib/format-answer-markdown";
 
 export default function TopicReaderPage() {
   const params = useParams();
@@ -196,11 +197,11 @@ export default function TopicReaderPage() {
       </div>
 
       {/* Main Educational Article Content */}
-      <article className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 md:p-10 shadow-sm">
+      <article className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 md:p-10 shadow-sm space-y-4">
         <div
-          className="prose dark:prose-invert prose-slate max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-lg prose-h2:border-b prose-h2:border-slate-100 dark:prose-h2:border-slate-800 prose-h2:pb-2 prose-h2:mt-8 prose-h3:text-base prose-h3:mt-6 prose-p:text-sm prose-p:leading-relaxed prose-li:text-sm prose-table:text-xs"
+          className="space-y-3 text-slate-800 dark:text-slate-200 text-sm leading-relaxed"
           dangerouslySetInnerHTML={{
-            __html: renderEducationalMarkdown(topic.theoryMarkdown),
+            __html: formatAnswerMarkdown(topic.theoryMarkdown),
           }}
         />
       </article>
@@ -243,48 +244,5 @@ export default function TopicReaderPage() {
       </div>
     </div>
   );
-}
-
-// Full-featured educational markdown parser
-function renderEducationalMarkdown(content: string): string {
-  let html = content
-    // Mathematical display equations
-    .replace(
-      /\$\$(.*?)\$\$/gs,
-      '<div class="my-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 font-mono text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-slate-800 overflow-x-auto">$1</div>'
-    )
-    // Inline math
-    .replace(
-      /\$([^\$]+)\$/g,
-      '<span class="font-mono text-xs font-semibold px-1 rounded bg-slate-100 dark:bg-slate-800 text-emerald-600 dark:text-emerald-400">$1</span>'
-    )
-    // Code blocks / ASCII Architecture diagrams
-    .replace(
-      /```([\s\S]*?)```/g,
-      '<pre class="p-4 rounded-2xl bg-slate-950 text-slate-100 font-mono text-xs overflow-x-auto my-4 border border-slate-800 shadow-inner leading-relaxed">$1</pre>'
-    )
-    // Headings
-    .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-slate-900 dark:text-white mt-8 mb-3 pb-1 border-b border-slate-100 dark:border-slate-800">$1</h2>')
-    .replace(/^### (.*$)/gim, '<h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-5 mb-2">$1</h3>')
-    // Bold / italic
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 dark:text-white">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-    // Blockquotes
-    .replace(
-      /^> (.*$)/gim,
-      '<blockquote class="border-l-4 border-emerald-500 pl-4 py-2 my-4 text-xs italic text-slate-600 dark:text-slate-300 bg-emerald-50/40 dark:bg-emerald-950/20 rounded-r-xl">$1</blockquote>'
-    )
-    // Lists
-    .replace(/^\* (.*$)/gim, '<li class="ml-5 list-disc text-xs my-1">$1</li>')
-    .replace(/^- (.*$)/gim, '<li class="ml-5 list-disc text-xs my-1">$1</li>')
-    .replace(/^\d+\. (.*$)/gim, '<li class="ml-5 list-decimal text-xs my-1">$1</li>')
-    // Tables
-    .replace(
-      /\|(.+)\|/gim,
-      (match) => `<div class="overflow-x-auto my-3"><table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg text-xs">${match}</table></div>`
-    )
-    .replace(/\n\n/g, '<div class="h-3"></div>');
-
-  return html;
 }
 

@@ -10,14 +10,15 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ className = "", size = 38 }: ThemeToggleProps) {
   return (
-    <SunMoonThemeToggle
-      size={size}
-      storageKey="se_platform_theme"
-      syncDocument={true}
-      duration={1200}
-      sky={true}
-      className={className}
-    />
+    <div className={`min-w-[44px] min-h-[44px] flex items-center justify-center ${className}`}>
+      <SunMoonThemeToggle
+        size={size}
+        storageKey="se_platform_theme"
+        syncDocument={true}
+        duration={1200}
+        sky={true}
+      />
+    </div>
   );
 }
 

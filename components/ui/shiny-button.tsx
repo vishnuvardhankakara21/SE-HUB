@@ -2,23 +2,24 @@
 
 import type React from "react";
 
-interface ShinyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ShinyButtonProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
+  as?: "button" | "span" | "div";
 }
 
 export function ShinyButton({
   children,
   onClick,
   className = "",
+  as = "button",
   ...props
 }: ShinyButtonProps) {
+  const Component = as as any;
   return (
     <>
       <style jsx>{`
-        @import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,500&display=swap");
-
         @property --gradient-angle {
           syntax: "<angle>";
           initial-value: 0deg;
@@ -60,7 +61,6 @@ export function ShinyButton({
           cursor: pointer;
           outline-offset: 4px;
           padding: 0.875rem 1.75rem;
-          font-family: "Inter", sans-serif;
           font-size: 0.95rem;
           line-height: 1.2;
           font-weight: 600;
@@ -205,9 +205,15 @@ export function ShinyButton({
         }
       `}</style>
 
-      <button className={`shiny-cta ${className}`} onClick={onClick} {...props}>
+      <Component
+        className={`shiny-cta ${className}`}
+        onClick={onClick}
+        role={as === "span" || as === "div" ? "button" : undefined}
+        tabIndex={as === "span" || as === "div" ? 0 : undefined}
+        {...props}
+      >
         <span>{children}</span>
-      </button>
+      </Component>
     </>
   );
 }

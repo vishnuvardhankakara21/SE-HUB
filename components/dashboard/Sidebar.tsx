@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -55,6 +55,17 @@ export function Sidebar({
   const router = useRouter();
   const { logout } = useAuth();
   const { data: session } = useSession();
+
+  const [currentHash, setCurrentHash] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const updateHash = () => setCurrentHash(window.location.hash || "");
+      updateHash();
+      window.addEventListener("hashchange", updateHash);
+      return () => window.removeEventListener("hashchange", updateHash);
+    }
+  }, []);
 
   const isTeacherRoute = pathname.startsWith("/teacher");
   const isStudentRoute = !isTeacherRoute;
@@ -296,9 +307,10 @@ export function Sidebar({
               </div>
               <nav className="space-y-1">
                 {teacherLinks.map((item) => {
-                  const isActive = item.exact
-                    ? pathname === item.href
-                    : pathname.startsWith(item.href);
+                  const targetHash = item.href.includes("#") ? `#${item.href.split("#")[1]}` : "";
+                  const isActive = targetHash
+                    ? currentHash === targetHash
+                    : (!currentHash || currentHash === "#students-section");
 
                   return (
                     <Link
@@ -313,7 +325,7 @@ export function Sidebar({
                       )}
                     >
                       <div className="flex items-center space-x-2.5">
-                        <item.icon className="w-4 h-4 text-amber-500" />
+                        <item.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-amber-500")} />
                         <span>{item.title}</span>
                       </div>
                     </Link>

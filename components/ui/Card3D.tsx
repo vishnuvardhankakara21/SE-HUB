@@ -29,11 +29,23 @@ export function Card3D({
 
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const mousePosRef = useRef({ x: -1000, y: -1000, targetX: -1000, targetY: -1000 });
   const animFrameRef = useRef<number | null>(null);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+      setReducedMotion(media.matches);
+      const listener = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+      media.addEventListener("change", listener);
+      return () => media.removeEventListener("change", listener);
+    }
+  }, []);
+
   // Canvas drawing loop for dynamic specular sheen & aura
   const renderCanvas = useCallback(() => {
+    if (reducedMotion) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -107,7 +119,7 @@ export function Card3D({
   }, [isHovered, canvasEffect, renderCanvas]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (reducedMotion || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;

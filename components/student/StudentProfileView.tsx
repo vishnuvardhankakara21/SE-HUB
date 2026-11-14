@@ -281,6 +281,15 @@ export function StudentProfileView() {
           : prev
       );
 
+      // Instantly synchronize name with NextAuth session so Navbar updates without page reload
+      if (updateSession) {
+        await updateSession({
+          name: editName.trim(),
+          className: editClassName,
+          section: editSection,
+        });
+      }
+
       setIsEditing(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);

@@ -167,7 +167,7 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -175,6 +175,13 @@ export const authOptions: NextAuthOptions = {
         token.className = user.className;
         token.section = user.section;
         token.picture = (user as any).avatarUrl || user.image;
+      }
+      if (trigger === "update" && session) {
+        if (session.name) token.name = session.name;
+        if (session.image) token.picture = session.image;
+        if (session.avatarUrl) token.picture = session.avatarUrl;
+        if (session.className) token.className = session.className;
+        if (session.section) token.section = session.section;
       }
       return token;
     },
